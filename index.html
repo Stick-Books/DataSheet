@@ -498,7 +498,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ rowIndex: index+1 })
+                body: JSON.stringify({ rowIndex: index })
             })
             .then(response => {
                 console.log('Response from POST request:', response);
