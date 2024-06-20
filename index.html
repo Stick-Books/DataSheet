@@ -235,7 +235,7 @@
 </table>
 
 <script>
-    var DomainUrl = "https://script.google.com/macros/s/AKfycbwgJeCKp1cGU3aMgPCZIyBTWYvEysiSNd0A-w0V9oqTIO8dFBPe9tTdqFGuoXaK28XlMQ/exec";
+    var DomainUrl = "https://script.google.com/macros/s/AKfycbwFfeHN-Fty2gI0-tsEaNi4kSvViO-hzA0t0i5mKXU99_6AwmMnZdH7N8rwoeZPC6W5cg/exec";
     var tableData;
     document.addEventListener('DOMContentLoaded', function() {
         fetchData();
@@ -427,7 +427,7 @@
     function editRow(index) {
         // Fetch data from the server again to get the most recent state
         //google.script.run.withSuccessHandler(function(data) {
-            var rowData = tableData[index];
+            var rowData = tableData[index-1];
             document.getElementById('transactionDate').value = formatDateToYYYYMMDD(new Date(rowData.transactionDate));
             document.getElementById('transactionType').value = rowData.transactionType;
             document.getElementById('paymentType').value = rowData.paymentType;
