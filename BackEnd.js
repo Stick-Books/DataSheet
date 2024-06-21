@@ -1,65 +1,71 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbyHMSkguni3j6ds64lZS5GQFubBgO2J6ADYJS0_Lu-3BUTF9UvTZogrcaeOKzcLtPOphA/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbxpnfEsaaKmXfJj5zxrGrFDwqiIlgL_-pkfbYBERGGYZTzPIm9ZUV048mxTtSf4oALWQA/exec";
 var tableData;
+var dropDownValues;
 document.addEventListener('DOMContentLoaded', function() {
+    AssigneValues();
     fetchData();
+    fetchDropDownData();
 });
 
-// Get the modal
-var modal = document.getElementById("myModal");
+function AssigneValues()
+{
+    // Get the modal
+    var modal = document.getElementById("myModal");
 
-// Get the button that opens the modal
-var btn = document.getElementById("addBtn");
+    // Get the button that opens the modal
+    var btn = document.getElementById("addBtn");
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks the button, open the modal 
-btn.onclick = function() {
-  modal.style.display = "block";
-  var form = document.getElementById("cashForm");
+    // When the user clicks the button, open the modal 
+    btn.onclick = function() {
+    modal.style.display = "block";
+    var form = document.getElementById("cashForm");
 
-  // Clear all input elements
-  var inputs = form.querySelectorAll('input');
-  inputs.forEach(function(input) {
-      if (input.type === 'number' || input.type === 'text' || input.type === 'date') {
-          input.value = '';
-      }
-      if (input.id === 'total') {
-          input.value = '0'; // Reset the total field to 0
-      }
-  });
-  
-  // Reset all select elements
-  var selects = form.querySelectorAll('select');
-  selects.forEach(function(select) {
-      select.selectedIndex = 0;
-  });
+    // Clear all input elements
+    var inputs = form.querySelectorAll('input');
+    inputs.forEach(function(input) {
+        if (input.type === 'number' || input.type === 'text' || input.type === 'date') {
+            input.value = '';
+        }
+        if (input.id === 'total') {
+            input.value = '0'; // Reset the total field to 0
+        }
+    });
+    
+    // Reset all select elements
+    var selects = form.querySelectorAll('select');
+    selects.forEach(function(select) {
+        select.selectedIndex = 0;
+    });
 
-  // Get the current date
-  const today = new Date();
+    // Get the current date
+    const today = new Date();
 
-  // Format the date as yyyy-mm-dd
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const formattedDate = `${year}-${month}-${day}`;
+    // Format the date as yyyy-mm-dd
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
 
-  // Set the value of the input to the formatted date
-  document.getElementById('transactionDate').value = formattedDate;
+    // Set the value of the input to the formatted date
+    document.getElementById('transactionDate').value = formattedDate;
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
 }
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
 // Fetch data from the server
 async function fetchData() {
     //google.script.run.withSuccessHandler(renderTable).getData();
@@ -76,6 +82,25 @@ async function fetchData() {
         console.error('Error with GET request:', error);
     });
 }
+
+async function fetchDropDownData() {
+    //google.script.run.withSuccessHandler(renderTable).getData();
+    const url = DomainUrl+"?action=getDropDown"; // Replace with your actual web app URL
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        console.log('GET request data:', data);
+        dropDownValues= JSON.parse(data);
+        populateFirstDropdown();
+        //renderTable(data);
+        // Handle the data from the GET request
+    })
+    .catch(error => {
+        console.error('Error with GET request:', error);
+    });
+}
+
 
 // Render table rows from fetched data
 function renderTable(data) {
@@ -272,6 +297,35 @@ function deleteRow(index) {
         })
         .catch(error => {
             console.error('Error with POST request:', error);
+        });
+    }
+}
+
+function populateFirstDropdown() {
+    const firstDropdown = document.getElementById('firstDropdown');
+    for (const area in dropDownValues) {
+        const option = document.createElement('option');
+        option.value = area;
+        option.text = area;
+        firstDropdown.appendChild(option);
+    }
+}
+
+function updateSecondDropdown() {
+    const firstDropdown = document.getElementById('firstDropdown');
+    const secondDropdown = document.getElementById('secondDropdown');
+    const selectedValue = firstDropdown.value;
+
+    // Clear the second dropdown
+    secondDropdown.innerHTML = '';
+
+    // Populate the second dropdown
+    if (selectedValue) {
+        dropDownValues[selectedValue].forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.text = name;
+            secondDropdown.appendChild(option);
         });
     }
 }

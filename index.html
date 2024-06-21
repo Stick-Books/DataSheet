@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <title>Data Sheet</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
@@ -70,6 +71,14 @@
                 <option value="EB">EB</option>
                 <option value="MoneyTransfer">Money Transfer</option>
                 <option value="Others">Others</option>
+            </select><br>
+            <label style="margin: 0px;" for="firstDropdown">Select Area:</label>
+            <select style="margin: 0px;" id="firstDropdown" onchange="updateSecondDropdown()">
+                <option value="">--Select an Area--</option>
+            </select><br>
+            <label style="margin: 0px;" for="secondDropdown">Select Name:</label>
+            <select style="margin: 0px;" id="secondDropdown">
+                <option value="">--Select a Name--</option>
             </select><br>
             <label style="margin: 0px;" for="transactionDate">Transaction Date:</label><input style="margin: 0px;" type="date" id="transactionDate" name="transaction-date"><br>
             <label style="margin: 0px;" for="personName">Person Name</label><input style="margin: 0px;" type="text" id="personName"><br>
