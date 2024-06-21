@@ -1,0 +1,131 @@
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+/* Style for the modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    border: 1px solid #888;
+    width: 50%;
+    display: flex;
+    border-radius: 8px;
+    flex-direction: column;
+}
+
+/* Style for the close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Input styles */
+input[type="number"], input[type="text"], input[type="date"], select {
+    width: 100%;
+    padding: 5px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 2px solid #e2e6f1; /* Initial border style */
+    border-radius: 4px;     /* Rounded corners */
+        /*transition: border-color 0.3s; Smooth transition for border color */
+}
+
+input[type="number"]:focus, input[type="text"]:focus, input[type="date"]:focus, select:focus {
+    border-color: #4c83ef;
+    outline: none; /* Remove default focus outline */
+}
+
+input[type="number"]:hover, input[type="text"]:hover, input[type="date"]:hover, select:hover {
+    border-color: #a0bcf7;
+}
+
+/* Add button */
+#addBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+        table {
+    width: 100%; /* Makes the table take up the full width of its container */
+    border-collapse: collapse; /* Ensures borders don't double up */
+}
+
+thead th {
+    background-color: #f2f2f2; /* Background color for headers */
+    position: sticky;
+    top: 0; /* Sticks the header to the top */
+}
+
+tbody {
+    display: block;
+    height: 520px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+th, td {
+    border: 1px solid #ddd; /* Adds a border to table cells */
+    padding: 2px; /* Adds padding for better readability */
+    text-align: left; /* Aligns text to the left */
+    width: 150px; /* Adjust this value based on your needs */
+}
+
+th.date, td.date { width: 8%; }
+th.transaction-type, td.transaction-type { width: 12%; }
+th.denomination-500, td.denomination-500,
+th.denomination-200, td.denomination-200,
+th.denomination-100, td.denomination-100,
+th.denomination-50, td.denomination-50,
+th.denomination-20, td.denomination-20,
+th.denomination-10, td.denomination-10 { width: 5%; }
+th.other-amount, td.other-amount { width: 8%; }
+th.total, td.total { width: 8%; }
+th.person-name, td.person-name { width: 12%; }
+th.mobile-number, td.mobile-number { width: 10%; }
+th.account-number, td.account-number { width: 10%; }
+th.remarks, td.remarks { width: 12%; }
+th.actions, td.actions { width: 9%; }
+th.scroller{ width: 0%;
+    padding: 0px;
+    background-color: white;
+    border: 0px solid #ddd}
+td.scroller{ width: 0px;padding: 0px; }
+tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+table ::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+table {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
