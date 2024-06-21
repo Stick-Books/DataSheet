@@ -93,8 +93,6 @@ async function fetchDropDownData() {
         console.log('GET request data:', data);
         dropDownValues= JSON.parse(data);
         populateFirstDropdown();
-        //renderTable(data);
-        // Handle the data from the GET request
     })
     .catch(error => {
         console.error('Error with GET request:', error);
