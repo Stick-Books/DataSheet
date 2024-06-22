@@ -1,16 +1,45 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbxpnfEsaaKmXfJj5zxrGrFDwqiIlgL_-pkfbYBERGGYZTzPIm9ZUV048mxTtSf4oALWQA/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbzrYZVC2kDMxJIQfVsY61qOsohmB11KFDX_O-NtvKIrYluXD7YMyecrQ0BNdcyA05NX9w/exec";
 var tableData;
 var dropDownValues;
+var modal;
+let gridInstance;
+
 document.addEventListener('DOMContentLoaded', function() {
+    setDefaultDate();
     AssigneValues();
-    fetchData();
+    fetchData(document.getElementById('selectedDate').value);
     fetchDropDownData();
 });
+
+function setDefaultDate() {
+    // Get today's date
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = String(today.getMonth() + 1).padStart(2, '0');
+    var day = String(today.getDate()).padStart(2, '0');
+
+    // Format date as YYYY-MM-DD
+    var currentDate = year + '-' + month + '-' + day;
+
+    // Set the value of the date input field to the current date
+    document.getElementById('selectedDate').value = currentDate;
+
+    // Get the date input element
+    const dateInput = document.getElementById('selectedDate');
+
+    dateInput.addEventListener('change', function() {
+
+        console.log('Date value changed:', dateInput.value);
+
+        fetchData(document.getElementById('selectedDate').value);
+    });
+
+}
 
 function AssigneValues()
 {
     // Get the modal
-    var modal = document.getElementById("myModal");
+    modal = document.getElementById("myModal");
 
     // Get the button that opens the modal
     var btn = document.getElementById("addBtn");
@@ -67,9 +96,14 @@ function AssigneValues()
 
 }
 // Fetch data from the server
-async function fetchData() {
+async function fetchData(date) {
     //google.script.run.withSuccessHandler(renderTable).getData();
-    const url = DomainUrl+"?action=getTable"; // Replace with your actual web app URL
+    let dateParts = date.split('-');
+
+    // Rearrange the parts to the desired format (dd-mm-yyyy)
+    let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
+    const url = DomainUrl+"?action=getTable("+formattedDate+")"; // Replace with your actual web app URL
 
     fetch(url)
     .then(response => response.json())
@@ -103,47 +137,68 @@ async function fetchDropDownData() {
 // Render table rows from fetched data
 function renderTable(data) {
     console.log(data);
-    tableData=data;
-    var tallyAmount=0;
-    var table = document.getElementById('data-table').getElementsByTagName('tbody')[0];
-    table.innerHTML = '';
-    data.forEach(function(row, index) {
-        var newRow = table.insertRow();
-        
-        if(row.transactionType == "Credit")
-        {
-          console.log("Credit");
-          tallyAmount = tallyAmount+row.total;
-        }
-        else{
-          console.log("Debit");
-          tallyAmount = tallyAmount-row.total; 
-        }
-        newRow.innerHTML = `
-            <td class="date">${formatDateToYYYYMMDD(new Date(row.transactionDate)) || ''}</td>
-            <td class="transaction-type">${row.transactionType || ''}</td>
-            <td class="payment-type">${row.paymentType || ''}</td>
-            <td class="denomination-500">${row.fiveHundred || ''}</td>
-            <td class="denomination-200">${row.twoHundred || ''}</td>
-            <td class="denomination-100">${row.oneHundred || ''}</td>
-            <td class="denomination-50">${row.fifty || ''}</td>
-            <td class="denomination-20">${row.twenty || ''}</td>
-            <td class="denomination-10">${row.ten || ''}</td>
-            <td class="other-amount">${row.otherAmount || ''}</td>
-            <td class="total" >${row.total || ''}</td>
-            <td class="person-name">${row.personName || ''}</td>
-            <td class="actions">
-              <div>
-                <button class="btn btn-outline-success btn-sm" onclick="editRow(${row.rowIndex})">Edit</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="deleteRow(${row.rowIndex})">Delete</button>
-              </div>  
-            </td>
-            <td class="scroller"></td>
-        `;
+    document.getElementById("wrapper").innerHTML="";
+    var tallyAmount = 0;
+    tableData= data;
+    const formattedData = data.map((row, index) => {
+      if(row.transactionType === "Credit") {
+        console.log("Credit");
+        tallyAmount += row.total;
+      } else {
+        console.log("Debit");
+        tallyAmount -= row.total;
+      }
+  
+      return [
+        formatDateToYYYYMMDD(new Date(row.transactionDate)) || '',
+        row.transactionType || '',
+        row.paymentType || '',
+        row.fiveHundred || '',
+        row.twoHundred || '',
+        row.oneHundred || '',
+        row.fifty || '',
+        row.twenty || '',
+        row.ten || '',
+        row.otherAmount || '',
+        row.total || '',
+        row.personName || '',
+        gridjs.html(`
+          <div>
+            <button class="btn btn-outline-success btn-sm" onclick="editRow(${row.rowIndex})">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteRow(${row.rowIndex})">Delete</button>
+          </div>
+        `),
+        ''
+      ];
     });
+  
+    if (gridInstance) {
+        gridInstance.updateConfig({
+          data: formattedData
+        }).forceRender();
+      } else {
+        gridInstance = new gridjs.Grid({
+          columns: [
+            "Date",
+            "Transaction Type",
+            "Payment Type",
+            "500",
+            "200",
+            "100",
+            "50",
+            "20",
+            "10",
+            "Other Amount",
+            "Total",
+            "Person Name",
+            "Actions"
+          ],
+          data: formattedData
+        }).render(document.getElementById("wrapper"));
+      }
+  
     console.log(tallyAmount);
     document.getElementById('tallyAmount').innerHTML = tallyAmount;
-    
 }
 
 function formatDateToYYYYMMDD(date) {
@@ -170,6 +225,10 @@ function calculateTotal() {
 
 // Submit form data
 async function submitForm() {
+    var date = document.getElementById('selectedDate').value;
+    let dateParts = date.split('-');
+    let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
     var postData = {
         transactionDate: document.getElementById('transactionDate').value,
         transactionType: document.getElementById('transactionType').value,
@@ -183,9 +242,9 @@ async function submitForm() {
         otherAmount: parseFloat(document.getElementById('otherAmount').value) || 0,
         total: parseFloat(document.getElementById('total').value) || 0,
         personName: document.getElementById('personName').value,
-        
+        tableName:formattedDate,
     };
-
+    
     fetch(DomainUrl + "?action=create", {
         method: 'POST',
         redirect: 'follow',
@@ -197,7 +256,7 @@ async function submitForm() {
     })
     .then(data => {
         console.log(data);
-        fetchData();
+        fetchData(document.getElementById('selectedDate').value);
         modal.style.display = "none";
         document.getElementById('cashForm').reset();
         document.getElementById('total').value = '';
@@ -233,6 +292,10 @@ function editRow(index) {
 
         // On submit, update the data
         document.querySelector('#SubmitButton').onclick = function() {
+            var date = document.getElementById('selectedDate').value;
+            let dateParts = date.split('-');
+            let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
             var updatedData = {
                 rowIndex:index,
                 transactionDate: document.getElementById('transactionDate').value,
@@ -247,7 +310,8 @@ function editRow(index) {
                 otherAmount: parseFloat(document.getElementById('otherAmount').value) || 0,
                 total: parseFloat(document.getElementById('total').value) || 0,
                 personName: document.getElementById('personName').value,
-            };
+                tableName: formattedDate,
+            }; 
 
             fetch(DomainUrl + "?action=update", {
                 method: 'POST',
@@ -263,7 +327,7 @@ function editRow(index) {
                     modal.style.display = "none";
                     document.getElementById('cashForm').reset();
                     document.getElementById('total').value = '';
-                    fetchData();
+                    fetchData(document.getElementById('selectedDate').value);
                     modal.style.display = "none";
                     console.log('POST request data:', data);
                 })
@@ -277,6 +341,10 @@ function editRow(index) {
 // Delete row data
 function deleteRow(index) {
     if (confirm('Are you sure you want to delete this record?')) {
+        var date = document.getElementById('selectedDate').value;
+        let dateParts = date.split('-');
+        let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
         fetch(DomainUrl + "?action=delete", {
             method: 'POST',
             redirect: 'follow',
@@ -284,14 +352,14 @@ function deleteRow(index) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ rowIndex: index })
+            body: JSON.stringify({ rowIndex: index ,tableName: formattedDate,})
         })
         .then(response => {
             console.log('Response from POST request:', response);
             modal.style.display = "none";
             document.getElementById('cashForm').reset();
             document.getElementById('total').value = '';
-            fetchData();
+            fetchData(document.getElementById('selectedDate').value);
         })
         .catch(error => {
             console.error('Error with POST request:', error);

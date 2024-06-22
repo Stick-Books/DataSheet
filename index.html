@@ -5,13 +5,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet">
     <script src="BackEnd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
     <link href="Styles.css" rel="stylesheet">
 </head>
 <body>
 
 <h2 style="margin-top: 20px;margin-bottom: 10px;">Cash Calculator</h2>
 <div id='tallyAmount'></div>
+
+<input style="margin: 0px;width: 200px;position: absolute;top: 15px;right: 100px;" type="date" id="selectedDate" name="selected-date">
 <!-- Add button -->
 <button  id="addBtn" class="btn btn-outline-primary btn-sm">
     <span class="plus-symbol">+</span> Add
@@ -87,7 +91,8 @@
     </form>
   </div>
 </div>
-<table id="data-table">
+<div id="wrapper"></div>
+<!-- <table id="data-table">
     <thead>
         <tr>
             <th class="date">Date</th>
@@ -107,8 +112,7 @@
         </tr>
     </thead>
     <tbody>
-        <!-- Data rows will be inserted here dynamically -->
     </tbody>
-</table>
+</table> -->
 </body>
 </html>
