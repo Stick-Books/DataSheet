@@ -53,7 +53,22 @@
                 <label style="width: 60px;" for="ten">10 x</label><input type="number" id="ten" value="0" oninput="calculateTotal()"><br>
             </div> 
             <div style="display: flex;align-items: center;">
-                <label style="width: 60px;" for="otherAmount">Others</label><input type="number" id="otherAmount" value="0" oninput="calculateTotal()"><br>
+                <label style="width: 60px;" for="five">5 x</label><input type="number" id="five" value="0" oninput="calculateTotal()"><br>
+            </div> 
+            <div style="display: flex;align-items: center;">
+                <label style="width: 60px;" for="two">2 x</label><input type="number" id="two" value="0" oninput="calculateTotal()"><br>
+            </div> 
+            <div style="display: flex;align-items: center;">
+                <label style="width: 60px;" for="one">1 x</label><input type="number" id="one" value="0" oninput="calculateTotal()"><br>
+            </div> 
+            <div style="display: flex;align-items: center;">
+                <label style="width: 60px;" for="others">Others</label><input type="number" id="others" value="0" oninput="calculateTotal()"><br>
+            </div> 
+            <div style="display: flex;align-items: center;">
+                <label style="width: 60px;" for="cash">Cash</label><input type="number" id="cash" value="0" readonly><br>
+            </div> 
+            <div style="display: flex;align-items: center;">
+                <label style="width: 60px;" for="dp">DP</label><input type="number" id="dp" value="0" oninput="calculateTotal()"><br>
             </div> 
             <div style="display: flex;align-items: center;">
                 <label style="width: 60px;" for="total">Total</label><input style="border: none;" type="number" id="total" readonly><br>
@@ -84,35 +99,13 @@
             <select style="margin: 0px;" id="secondDropdown">
                 <option value="">--Select a Name--</option>
             </select><br>
-            <label style="margin: 0px;" for="transactionDate">Transaction Date:</label><input style="margin: 0px;" type="date" id="transactionDate" name="transaction-date"><br>
-            <label style="margin: 0px;" for="personName">Person Name</label><input style="margin: 0px;" type="text" id="personName"><br>
+            <!-- <label style="margin: 0px;" for="transactionDate">Transaction Date:</label><input style="margin: 0px;" type="date" id="transactionDate" name="transaction-date"><br> -->
+            <label style="margin: 0px;" for="remarks">Remarks </label><input style="margin: 0px;" type="text" id="remarks"><br>
             <button class="btn btn-outline-primary" id="SubmitButton" type="button" style="margin-left: 259px;margin-top: 129px;" onclick="submitForm()">Submit</button>
         </div>
     </form>
   </div>
 </div>
 <div id="wrapper"></div>
-<!-- <table id="data-table">
-    <thead>
-        <tr>
-            <th class="date">Date</th>
-            <th class="transaction-type">Transaction Type</th>
-            <th class="payment-type">Payment Type</th>
-            <th class="denomination-500">500</th>
-            <th class="denomination-200">200</th>
-            <th class="denomination-100">100</th>
-            <th class="denomination-50">50</th>
-            <th class="denomination-20">20</th>
-            <th class="denomination-10">10</th>
-            <th class="other-amount">Other Amount</th>
-            <th class="total">Total</th>
-            <th class="person-name">Person Name</th>
-            <th class="actions">Actions</th>
-            <th class="scroller"></th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table> -->
 </body>
 </html>

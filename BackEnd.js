@@ -1,4 +1,4 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbzrYZVC2kDMxJIQfVsY61qOsohmB11KFDX_O-NtvKIrYluXD7YMyecrQ0BNdcyA05NX9w/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbzPA0x6VeMeRF0aizRmRpCOZezeCuFP0InBeU81eAl28uMgA599akpypQDruJ9Ks8Nh5Q/exec";
 var tableData;
 var dropDownValues;
 var modal;
@@ -69,17 +69,6 @@ function AssigneValues()
         select.selectedIndex = 0;
     });
 
-    // Get the current date
-    const today = new Date();
-
-    // Format the date as yyyy-mm-dd
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-
-    // Set the value of the input to the formatted date
-    document.getElementById('transactionDate').value = formattedDate;
     }
 
     // When the user clicks on <span> (x), close the modal
@@ -137,69 +126,82 @@ async function fetchDropDownData() {
 // Render table rows from fetched data
 function renderTable(data) {
     console.log(data);
-    document.getElementById("wrapper").innerHTML="";
+    document.getElementById("wrapper").innerHTML = "";
     var tallyAmount = 0;
-    tableData= data;
+    tableData = data;
+    
     const formattedData = data.map((row, index) => {
-      if(row.transactionType === "Credit") {
-        console.log("Credit");
-        tallyAmount += row.total;
-      } else {
-        console.log("Debit");
-        tallyAmount -= row.total;
-      }
-  
-      return [
-        formatDateToYYYYMMDD(new Date(row.transactionDate)) || '',
-        row.transactionType || '',
-        row.paymentType || '',
-        row.fiveHundred || '',
-        row.twoHundred || '',
-        row.oneHundred || '',
-        row.fifty || '',
-        row.twenty || '',
-        row.ten || '',
-        row.otherAmount || '',
-        row.total || '',
-        row.personName || '',
-        gridjs.html(`
-          <div>
-            <button class="btn btn-outline-success btn-sm" onclick="editRow(${row.rowIndex})">Edit</button>
-            <button class="btn btn-outline-danger btn-sm" onclick="deleteRow(${row.rowIndex})">Delete</button>
-          </div>
-        `),
-        ''
-      ];
+        if (row.transactionType === "Credit") {
+            console.log("Credit");
+            tallyAmount += row.total;
+        } else {
+            console.log("Debit");
+            tallyAmount -= row.total;
+        }
+        
+        return [
+            row.area || '',
+            row.name || '',
+            row.transactionType || '',
+            row.paymentType || '',
+            row.fiveHundred || '',
+            row.twoHundred || '',
+            row.oneHundred || '',
+            row.fifty || '',
+            row.twenty || '',
+            row.ten || '',
+            row.five || '',
+            row.two || '',
+            row.one || '',
+            row.others || '',
+            row.remarks || '',
+            row.cash || '',
+            row.dp || '',
+            row.total || '',
+            gridjs.html(`
+                <div>
+                    <button class="btn btn-outline-success btn-sm" onclick="editRow(${index})">Edit</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteRow(${index})">Delete</button>
+                </div>
+            `)
+        ];
     });
-  
+    
     if (gridInstance) {
         gridInstance.updateConfig({
-          data: formattedData
+            data: formattedData
         }).forceRender();
-      } else {
+    } else {
         gridInstance = new gridjs.Grid({
-          columns: [
-            "Date",
-            "Transaction Type",
-            "Payment Type",
-            "500",
-            "200",
-            "100",
-            "50",
-            "20",
-            "10",
-            "Other Amount",
-            "Total",
-            "Person Name",
-            "Actions"
-          ],
-          data: formattedData
+            columns: [
+                'Area',
+                'Name',
+                'Transaction Type',
+                'Payment Type',
+                '500',
+                '200',
+                '100',
+                '50',
+                '20',
+                '10',
+                '5',
+                '2',
+                '1',
+                'Others',
+                'Remarks',
+                'Cash',
+                'DP',
+                'Total',
+                { name: 'Actions', formatter: (cell) => cell }
+            ],
+            data: formattedData
         }).render(document.getElementById("wrapper"));
-      }
-  
+    }
+    
     console.log(tallyAmount);
     document.getElementById('tallyAmount').innerHTML = tallyAmount;
 }
+
 
 function formatDateToYYYYMMDD(date) {
     const year = date.getFullYear();
@@ -217,10 +219,15 @@ function calculateTotal() {
     var fifty = parseFloat(document.getElementById('fifty').value) || 0;
     var twenty = parseFloat(document.getElementById('twenty').value) || 0;
     var ten = parseFloat(document.getElementById('ten').value) || 0;
-    var otherAmount = parseFloat(document.getElementById('otherAmount').value) || 0;
+    var five= parseFloat(document.getElementById('five').value) || 0;
+    var two= parseFloat(document.getElementById('two').value) || 0;
+    var one= parseFloat(document.getElementById('one').value) || 0;
+    var others = parseFloat(document.getElementById('others').value) || 0;
+    var dp = parseFloat(document.getElementById('dp').value) || 0;
 
-    var total = (500 * fiveHundred) + (200 * twoHundred) + (100 * oneHundred) + (50 * fifty) + (20 * twenty) + (10 * ten) + otherAmount;
-    document.getElementById('total').value = total;
+    var cashtotal = (500 * fiveHundred) + (200 * twoHundred) + (100 * oneHundred) + (50 * fifty) + (20 * twenty) + (10 * ten)+ (5 * five)+ (2 * two) + (1 * one)+ others;
+    document.getElementById('cash').value = cashtotal;
+    document.getElementById('total').value = cashtotal+dp;
 }
 
 // Submit form data
@@ -230,7 +237,8 @@ async function submitForm() {
     let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
     var postData = {
-        transactionDate: document.getElementById('transactionDate').value,
+        area:document.getElementById('firstDropdown').value,
+        name:document.getElementById('secondDropdown').value,
         transactionType: document.getElementById('transactionType').value,
         paymentType: document.getElementById('paymentType').value,
         fiveHundred: parseFloat(document.getElementById('fiveHundred').value) || 0,
@@ -239,9 +247,14 @@ async function submitForm() {
         fifty: parseFloat(document.getElementById('fifty').value) || 0,
         twenty: parseFloat(document.getElementById('twenty').value) || 0,
         ten: parseFloat(document.getElementById('ten').value) || 0,
-        otherAmount: parseFloat(document.getElementById('otherAmount').value) || 0,
+        five: parseFloat(document.getElementById('five').value) || 0,
+        two: parseFloat(document.getElementById('two').value) || 0,
+        one: parseFloat(document.getElementById('one').value) || 0,
+        others: parseFloat(document.getElementById('others').value) || 0,
+        remarks: document.getElementById('remarks').value,
+        cash: parseFloat(document.getElementById('cash').value) || 0,
+        dp: parseFloat(document.getElementById('dp').value) || 0,
         total: parseFloat(document.getElementById('total').value) || 0,
-        personName: document.getElementById('personName').value,
         tableName:formattedDate,
     };
     
@@ -272,8 +285,7 @@ async function submitForm() {
 function editRow(index) {
     // Fetch data from the server again to get the most recent state
     //google.script.run.withSuccessHandler(function(data) {
-        var rowData = tableData[index-1];
-        document.getElementById('transactionDate').value = formatDateToYYYYMMDD(new Date(rowData.transactionDate));
+        var rowData = tableData[index];
         document.getElementById('transactionType').value = rowData.transactionType;
         document.getElementById('paymentType').value = rowData.paymentType;
         document.getElementById('fiveHundred').value = rowData.fiveHundred;
@@ -282,9 +294,14 @@ function editRow(index) {
         document.getElementById('fifty').value = rowData.fifty;
         document.getElementById('twenty').value = rowData.twenty;
         document.getElementById('ten').value = rowData.ten;
-        document.getElementById('otherAmount').value = rowData.otherAmount;
+        document.getElementById('five').value = rowData.five;
+        document.getElementById('two').value = rowData.two;
+        document.getElementById('one').value = rowData.one;
+        document.getElementById('others').value = rowData.others;
         document.getElementById('total').value = rowData.total;
-        document.getElementById('personName').value = rowData.personName;
+        document.getElementById('cash').value = rowData.cash;
+        document.getElementById('dp').value = rowData.dp;
+        document.getElementById('remarks').value = rowData.remarks;
         
 
         // Show modal with the filled data
@@ -297,8 +314,9 @@ function editRow(index) {
             let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
             var updatedData = {
-                rowIndex:index,
-                transactionDate: document.getElementById('transactionDate').value,
+                rowIndex:index+1,
+                area:document.getElementById('firstDropdown').value,
+                name:document.getElementById('secondDropdown').value,
                 transactionType: document.getElementById('transactionType').value,
                 paymentType: document.getElementById('paymentType').value,
                 fiveHundred: parseFloat(document.getElementById('fiveHundred').value) || 0,
@@ -307,10 +325,15 @@ function editRow(index) {
                 fifty: parseFloat(document.getElementById('fifty').value) || 0,
                 twenty: parseFloat(document.getElementById('twenty').value) || 0,
                 ten: parseFloat(document.getElementById('ten').value) || 0,
-                otherAmount: parseFloat(document.getElementById('otherAmount').value) || 0,
+                five: parseFloat(document.getElementById('five').value) || 0,
+                two: parseFloat(document.getElementById('two').value) || 0,
+                one: parseFloat(document.getElementById('one').value) || 0,
+                others: parseFloat(document.getElementById('others').value) || 0,
+                remarks: document.getElementById('remarks').value,
+                cash: parseFloat(document.getElementById('cash').value) || 0,
+                dp: parseFloat(document.getElementById('dp').value) || 0,
                 total: parseFloat(document.getElementById('total').value) || 0,
-                personName: document.getElementById('personName').value,
-                tableName: formattedDate,
+                tableName:formattedDate,
             }; 
 
             fetch(DomainUrl + "?action=update", {

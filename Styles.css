@@ -68,3 +68,11 @@ input[type="number"]:hover, input[type="text"]:hover, input[type="date"]:hover, 
     top: 20px;
     right: 20px;
 }
+
+th.gridjs-th{
+    padding: 2px !important;
+}
+
+td.gridjs-td{
+    padding: 4px !important;
+}
