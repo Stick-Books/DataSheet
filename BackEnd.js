@@ -160,8 +160,8 @@ function renderTable(data) {
             row.total || '',
             gridjs.html(`
                 <div>
-                    <button class="btn btn-outline-success btn-sm" onclick="editRow(${index})">Edit</button>
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteRow(${index})">Delete</button>
+                    <button  class="btn btn-success btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Edit" onclick="editRow(${index})"><i class="fa fa-edit"></i></button>
+                    <button  class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(${index})"><i class="fa fa-trash"></i></button>
                 </div>
             `)
         ];
@@ -173,26 +173,29 @@ function renderTable(data) {
         }).forceRender();
     } else {
         gridInstance = new gridjs.Grid({
+            pagination: {
+                limit: 15
+            },
             columns: [
-                'Area',
-                'Name',
-                'Transaction Type',
-                'Payment Type',
-                '500',
-                '200',
-                '100',
-                '50',
-                '20',
-                '10',
-                '5',
-                '2',
-                '1',
-                'Others',
-                'Remarks',
-                'Cash',
-                'DP',
-                'Total',
-                { name: 'Actions', formatter: (cell) => cell }
+                { name: 'Area', width: '120px' },
+                { name: 'Name', width: '150px' },
+                { name: 'Transaction Type', width: '100px' },
+                { name: 'Payment Type', width: '120px' },
+                { name: '500', width: '45px' },
+                { name: '200', width: '45px' },
+                { name: '100', width: '45px' },
+                { name: '50', width: '45px' },
+                { name: '20', width: '45px' },
+                { name: '10', width: '45px' },
+                { name: '5', width: '45px' },
+                { name: '2', width: '45px' },
+                { name: '1', width: '45px' },
+                { name: 'Others', width: '70px' },
+                { name: 'Remarks', width: '100px' },
+                { name: 'Cash', width: '100px' },
+                { name: 'DP', width: '100px' },
+                { name: 'Total', width: '80px' },
+                { name: 'Actions', width: '80px' ,formatter: (cell) => cell }
             ],
             data: formattedData
         }).render(document.getElementById("wrapper"));
@@ -286,6 +289,13 @@ function editRow(index) {
     // Fetch data from the server again to get the most recent state
     //google.script.run.withSuccessHandler(function(data) {
         var rowData = tableData[index];
+        document.getElementById('firstDropdown').value = rowData.area;
+        var secondDropdown =document.getElementById('secondDropdown');
+        const option = document.createElement('option');
+        option.value = rowData.name;
+        option.text = rowData.name;
+        secondDropdown.appendChild(option);
+        document.getElementById('secondDropdown').value = rowData.name;
         document.getElementById('transactionType').value = rowData.transactionType;
         document.getElementById('paymentType').value = rowData.paymentType;
         document.getElementById('fiveHundred').value = rowData.fiveHundred;
@@ -375,7 +385,7 @@ function deleteRow(index) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ rowIndex: index ,tableName: formattedDate,})
+            body: JSON.stringify({ rowIndex: index+1 ,tableName: formattedDate,})
         })
         .then(response => {
             console.log('Response from POST request:', response);
