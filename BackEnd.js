@@ -290,11 +290,14 @@ function editRow(index) {
     //google.script.run.withSuccessHandler(function(data) {
         var rowData = tableData[index];
         document.getElementById('firstDropdown').value = rowData.area;
-        var secondDropdown =document.getElementById('secondDropdown');
-        const option = document.createElement('option');
-        option.value = rowData.name;
-        option.text = rowData.name;
-        secondDropdown.appendChild(option);
+        if (rowData.area) {
+            dropDownValues[rowData.area].forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.text = name;
+                secondDropdown.appendChild(option);
+            });
+        }
         document.getElementById('secondDropdown').value = rowData.name;
         document.getElementById('transactionType').value = rowData.transactionType;
         document.getElementById('paymentType').value = rowData.paymentType;
