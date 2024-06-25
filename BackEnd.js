@@ -1,4 +1,4 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbyBxWONibtIk9UzRGzDq8IQJOLlH-AefYMY-Lwe842JbY8PWV0e2OvwHUvdwJu2ngIJkQ/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbyWmG9ai1hKO7Aik6qv-1LDyVSGI2W9AuRp2_FyoJb6IkmPUncgKjLoOfZv_katOli_2A/exec";
 var tableData;
 var dropDownValues;
 var modal;
@@ -140,7 +140,7 @@ function renderTable(data) {
         }
         
         return [
-            row.area || '',
+            row.companyName || '',
             row.name || '',
             row.transactionType || '',
             //row.paymentType || '',
@@ -177,7 +177,7 @@ function renderTable(data) {
                 limit: 15
             },
             columns: [
-                { name: 'Area', width: '120px' },
+                { name: 'Company Name', width: '120px' },
                 { name: 'Name', width: '150px' },
                 { name: 'Transaction Type', width: '100px' },
                 //{ name: 'Payment Type', width: '120px' },
@@ -240,7 +240,7 @@ async function submitForm() {
     let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
     var postData = {
-        area:document.getElementById('firstDropdown').value,
+        companyName:document.getElementById('firstDropdown').value,
         name:document.getElementById('secondDropdown').value,
         transactionType: document.getElementById('transactionType').value,
         //paymentType: document.getElementById('paymentType').value,
@@ -289,9 +289,9 @@ function editRow(index) {
     // Fetch data from the server again to get the most recent state
     //google.script.run.withSuccessHandler(function(data) {
         var rowData = tableData[index];
-        document.getElementById('firstDropdown').value = rowData.area;
-        if (rowData.area) {
-            dropDownValues[rowData.area].forEach(name => {
+        document.getElementById('firstDropdown').value = rowData.companyName;
+        if (rowData.companyName) {
+            dropDownValues[rowData.companyName].forEach(name => {
                 const option = document.createElement('option');
                 option.value = name;
                 option.text = name;
@@ -328,7 +328,7 @@ function editRow(index) {
 
             var updatedData = {
                 rowIndex:index+1,
-                area:document.getElementById('firstDropdown').value,
+                companyName:document.getElementById('firstDropdown').value,
                 name:document.getElementById('secondDropdown').value,
                 transactionType: document.getElementById('transactionType').value,
                 //paymentType: document.getElementById('paymentType').value,
@@ -405,10 +405,10 @@ function deleteRow(index) {
 
 function populateFirstDropdown() {
     const firstDropdown = document.getElementById('firstDropdown');
-    for (const area in dropDownValues) {
+    for (const companyName in dropDownValues) {
         const option = document.createElement('option');
-        option.value = area;
-        option.text = area;
+        option.value = companyName;
+        option.text = companyName;
         firstDropdown.appendChild(option);
     }
 }

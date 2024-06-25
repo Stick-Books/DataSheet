@@ -109,7 +109,7 @@ function getData(date) {
   const transformedData = data.map((row, index) => {
     return {
       rowIndex: index + 1, // store the row index
-      area:row[0],
+      companyName:row[0],
       name:row[1],
       transactionType:row[2],
       //paymentType:row[3],
@@ -139,7 +139,7 @@ function createData(data,date) {
   //var sheet = getSheet();
   var sheetCreate = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(date);
   var newRow = [
-    data.area,
+    data.companyName,
     data.name,
     data.transactionType,
     //data.paymentType,
@@ -171,7 +171,7 @@ function updateData(rowIndex, newData,date) {
   var sheetUpdate = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(date);
   var range = sheetUpdate.getRange(rowIndex, 1, 1, sheetUpdate.getLastColumn());
   range.setValues([[
-    newData.area,
+    newData.companyName,
     newData.name,
     newData.transactionType,
     //newData.paymentType,
