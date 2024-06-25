@@ -112,21 +112,21 @@ function getData(date) {
       area:row[0],
       name:row[1],
       transactionType:row[2],
-      paymentType:row[3],
-      fiveHundred:row[4],
-      twoHundred:row[5],
-      oneHundred:row[6],
-      fifty:row[7],
-      twenty:row[8],
-      ten:row[9],
-      five:row[10],
-      two:row[11],
-      one:row[12],
-      others:row[13],
-      remarks:row[14],
-      cash:row[15],
-      dp:row[16],
-      total:row[17]
+      //paymentType:row[3],
+      fiveHundred:row[3],
+      twoHundred:row[4],
+      oneHundred:row[5],
+      fifty:row[6],
+      twenty:row[7],
+      ten:row[8],
+      five:row[9],
+      two:row[10],
+      one:row[11],
+      others:row[12],
+      remarks:row[13],
+      cash:row[14],
+      dp:row[15],
+      total:row[16]
     };
   });
 
@@ -142,7 +142,7 @@ function createData(data,date) {
     data.area,
     data.name,
     data.transactionType,
-    data.paymentType,
+    //data.paymentType,
     data.fiveHundred,
     data.twoHundred,
     data.oneHundred,
@@ -174,7 +174,7 @@ function updateData(rowIndex, newData,date) {
     newData.area,
     newData.name,
     newData.transactionType,
-    newData.paymentType,
+    //newData.paymentType,
     newData.fiveHundred,
     newData.twoHundred,
     newData.oneHundred,
@@ -207,44 +207,3 @@ function deleteData(rowIndex,date) {
     message: `Row ${rowIndex} deleted successfully`
   };
 }
-
-// function insertData(data) {
-//   sheet.appendRow([
-//     data.transactionDate,
-//     data.transactionType,
-//     data.paymentType,
-//     data.fiveHundred,
-//     data.twoHundred,
-//     data.oneHundred,
-//     data.fifty,
-//     data.twenty,
-//     data.ten,
-//     data.others,
-//     data.total,
-//     data.personName
-//   ]);
-//   return getData();
-// }
-
-// function updateData(row, data) {
-//   sheet.getRange(row + 1, 1, 1, sheet.getLastColumn()).setValues([[
-//     data.transactionDate,
-//     data.transactionType,
-//     data.paymentType,
-//     data.fiveHundred,
-//     data.twoHundred,
-//     data.oneHundred,
-//     data.fifty,
-//     data.twenty,
-//     data.ten,
-//     data.others,
-//     data.total,
-//     data.personName
-//   ]]);
-//   return getData();
-// }
-
-// function deleteData(row) {
-//   sheet.deleteRow(row + 1);
-//   return getData();
-// }

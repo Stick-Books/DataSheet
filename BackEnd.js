@@ -1,4 +1,4 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbzPA0x6VeMeRF0aizRmRpCOZezeCuFP0InBeU81eAl28uMgA599akpypQDruJ9Ks8Nh5Q/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbyBxWONibtIk9UzRGzDq8IQJOLlH-AefYMY-Lwe842JbY8PWV0e2OvwHUvdwJu2ngIJkQ/exec";
 var tableData;
 var dropDownValues;
 var modal;
@@ -143,7 +143,7 @@ function renderTable(data) {
             row.area || '',
             row.name || '',
             row.transactionType || '',
-            row.paymentType || '',
+            //row.paymentType || '',
             row.fiveHundred || '',
             row.twoHundred || '',
             row.oneHundred || '',
@@ -180,7 +180,7 @@ function renderTable(data) {
                 { name: 'Area', width: '120px' },
                 { name: 'Name', width: '150px' },
                 { name: 'Transaction Type', width: '100px' },
-                { name: 'Payment Type', width: '120px' },
+                //{ name: 'Payment Type', width: '120px' },
                 { name: '500', width: '45px' },
                 { name: '200', width: '45px' },
                 { name: '100', width: '45px' },
@@ -243,7 +243,7 @@ async function submitForm() {
         area:document.getElementById('firstDropdown').value,
         name:document.getElementById('secondDropdown').value,
         transactionType: document.getElementById('transactionType').value,
-        paymentType: document.getElementById('paymentType').value,
+        //paymentType: document.getElementById('paymentType').value,
         fiveHundred: parseFloat(document.getElementById('fiveHundred').value) || 0,
         twoHundred: parseFloat(document.getElementById('twoHundred').value) || 0,
         oneHundred: parseFloat(document.getElementById('oneHundred').value) || 0,
@@ -300,7 +300,7 @@ function editRow(index) {
         }
         document.getElementById('secondDropdown').value = rowData.name;
         document.getElementById('transactionType').value = rowData.transactionType;
-        document.getElementById('paymentType').value = rowData.paymentType;
+        //document.getElementById('paymentType').value = rowData.paymentType;
         document.getElementById('fiveHundred').value = rowData.fiveHundred;
         document.getElementById('twoHundred').value = rowData.twoHundred;
         document.getElementById('oneHundred').value = rowData.oneHundred;
@@ -331,7 +331,7 @@ function editRow(index) {
                 area:document.getElementById('firstDropdown').value,
                 name:document.getElementById('secondDropdown').value,
                 transactionType: document.getElementById('transactionType').value,
-                paymentType: document.getElementById('paymentType').value,
+                //paymentType: document.getElementById('paymentType').value,
                 fiveHundred: parseFloat(document.getElementById('fiveHundred').value) || 0,
                 twoHundred: parseFloat(document.getElementById('twoHundred').value) || 0,
                 oneHundred: parseFloat(document.getElementById('oneHundred').value) || 0,
