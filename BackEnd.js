@@ -1,14 +1,18 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbyWmG9ai1hKO7Aik6qv-1LDyVSGI2W9AuRp2_FyoJb6IkmPUncgKjLoOfZv_katOli_2A/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbwX7BzbMp2H9TghzaoXQRsk8KCXsHVZjWfu3R1NYyYs414tnVpgGl7iCIRh6H0rtmla7w/exec";
 var tableData;
 var dropDownValues;
 var modal;
 let gridInstance;
+let currentArea = null;
+let currentOperation = null;
+var userData;
 
 document.addEventListener('DOMContentLoaded', function() {
     setDefaultDate();
     AssigneValues();
     fetchData(document.getElementById('selectedDate').value);
     fetchDropDownData();
+    fetchCreditData();
 });
 
 function setDefaultDate() {
@@ -50,6 +54,8 @@ function AssigneValues()
     // When the user clicks the button, open the modal 
     btn.onclick = function() {
     modal.style.display = "block";
+    populateFirstDropdown();
+
     var form = document.getElementById("cashForm");
 
     // Clear all input elements
@@ -114,8 +120,9 @@ async function fetchDropDownData() {
     .then(response => response.json())
     .then(data => {
         console.log('GET request data:', data);
-        dropDownValues= JSON.parse(data);
+        dropDownValues= JSON.parse(JSON.parse(data));
         populateFirstDropdown();
+        loadAreas();
     })
     .catch(error => {
         console.error('Error with GET request:', error);
@@ -369,8 +376,8 @@ function editRow(index) {
                 })
                 .catch(error => {
                 console.error('Error with POST request:', error);
-                });
-            };
+            });
+        };
     //}).getData();
 }
 
@@ -405,6 +412,16 @@ function deleteRow(index) {
 
 function populateFirstDropdown() {
     const firstDropdown = document.getElementById('firstDropdown');
+    firstDropdown.innerHTML="";
+    document.getElementById('secondDropdown').innerHTML="";
+    var defaultoption = document.createElement('option');
+
+    // Set attributes for the option
+    defaultoption.disabled = true;
+    defaultoption.selected = true;
+    defaultoption.value = "";
+    defaultoption.textContent = "--Select a Company--";
+    firstDropdown.appendChild(defaultoption);
     for (const companyName in dropDownValues) {
         const option = document.createElement('option');
         option.value = companyName;
@@ -429,5 +446,378 @@ function updateSecondDropdown() {
             option.text = name;
             secondDropdown.appendChild(option);
         });
+    }
+}
+
+function Export() {
+    // Sample input data
+    const inputData =tableData;
+
+    // Function to merge data
+    const mergeData = (data) => {
+        const mergedData = {};
+        data.forEach(item => {
+            const key = `${item.name}-${item.companyName}-${item.transactionType}`;
+            if (!mergedData[key]) {
+                mergedData[key] = { ...item };
+            } else {
+                Object.keys(item).forEach(k => {
+                    if (typeof item[k] === 'number') {
+                        mergedData[key][k] += item[k];
+                    }
+                });
+            }
+        });
+        return Object.values(mergedData);
+    };
+
+    // Merge the data
+    const mergedData = mergeData(inputData);
+
+    // Remove the rowIndex field and modify labels
+    const processedData = mergedData.map(item => {
+        const { rowIndex, ...rest } = item;
+        return rest;
+    });
+
+    // Change labels
+    const changeLabels = (data) => {
+        const newData = data.map(item => {
+            return {
+                'Company Name': item.companyName,
+                'Name': item.name,
+                'Transaction Type': item.transactionType,
+                'Five Hundred': item.fiveHundred,
+                'Two Hundred': item.twoHundred,
+                'One Hundred': item.oneHundred,
+                'Fifty': item.fifty,
+                'Twenty': item.twenty,
+                'Ten': item.ten,
+                'Five': item.five,
+                'Two': item.two,
+                'One': item.one,
+                'Others': item.others,
+                'Cash': item.cash,
+                'DP': item.dp,
+                'Remarks': item.remarks,
+                'Total': item.total, 
+            };
+        });
+        return newData;
+    };
+
+    const finalData = changeLabels(processedData);
+
+    // Function to export to Excel
+    const exportToExcel = (data) => {
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        
+        // Create a binary string to download
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+        // Function to convert a binary string to an array buffer
+        function s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+        }
+
+        // Create a Blob from the array buffer
+        const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+
+        // Create a download link and trigger the download
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        var date = document.getElementById('selectedDate').value;
+        let dateParts = date.split('-');
+        let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+        link.download = formattedDate+'.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Export processed and labeled data to Excel
+    exportToExcel(finalData);
+}
+
+
+function loadAreas() {
+    const areaSelector = document.getElementById('areaSelector');
+    areaSelector.innerHTML = '<option value="" disabled selected>Select an company</option>';
+    for (const company in dropDownValues) {
+        const option = document.createElement('option');
+        option.value = company;
+        option.textContent = company;
+        areaSelector.appendChild(option);
+    }
+}
+
+function showSelectedArea() {
+    const areaSelector = document.getElementById('areaSelector');
+    const selectedArea = areaSelector.value;
+    const tableBody = document.getElementById('areaTable').getElementsByTagName('tbody')[0];
+
+    if(selectedArea!= "")
+    {
+        tableBody.innerHTML = '';
+        currentArea = selectedArea;
+
+        dropDownValues[selectedArea].forEach(name => {
+            const row = document.createElement('tr');
+            const nameCell = document.createElement('td');
+            nameCell.textContent = name;
+            const actionsCell = document.createElement('td');
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.className = 'button edit';
+            editButton.onclick = () => openPopup('editName', name);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.className = 'button delete';
+            deleteButton.onclick = () => {
+                dropDownValues[selectedArea] = dropDownValues[selectedArea].filter(n => n !== name);
+                showSelectedArea();
+            };
+
+            actionsCell.appendChild(editButton);
+            actionsCell.appendChild(deleteButton);
+
+            row.appendChild(nameCell);
+            row.appendChild(actionsCell);
+            tableBody.appendChild(row);
+        });
+
+        document.querySelector('.button.add-name').style.display = 'block';
+    }
+}
+
+function deleteArea() {
+    if (currentArea) {
+        delete dropDownValues[currentArea];
+        loadAreas();
+        document.getElementById('areaTable').getElementsByTagName('tbody')[0].innerHTML = '';
+        document.querySelector('.button.add-name').style.display = 'none';
+        currentArea = null;
+    } else {
+        alert('Please select an company to delete.');
+    }
+}
+
+function openPopup(operation, target) {
+    currentOperation = operation;
+    const popup = document.getElementById('popup');
+    const popupTitle = document.getElementById('popupTitle');
+    const popupInput = document.getElementById('popupInput');
+
+    if (operation === 'addArea') {
+        popupTitle.textContent = 'Add company';
+        popupInput.placeholder = 'Enter company name';
+    } else if (operation === 'addName') {
+        popupTitle.textContent = 'Add Name';
+        popupInput.placeholder = 'Enter name';
+    } else if (operation === 'editName') {
+        popupTitle.textContent = 'Edit Name';
+        popupInput.value = target;
+    }
+
+    popup.style.display = 'flex';
+}
+
+function closePopup() {
+    const popup = document.getElementById('popup');
+    const popupInput = document.getElementById('popupInput');
+
+    popupInput.value = '';
+    popup.style.display = 'none';
+}
+
+function savePopupData() {
+    const popupInput = document.getElementById('popupInput').value.trim();
+
+    if (popupInput === "") return;
+
+    if (currentOperation === 'addArea') {
+        if (!dropDownValues[popupInput]) {
+            dropDownValues[popupInput] = [];
+            const areaSelector = document.getElementById('areaSelector');
+            const option = document.createElement('option');
+            option.value = popupInput;
+            option.textContent = popupInput;
+            areaSelector.appendChild(option);
+        }
+    } else if (currentOperation === 'addName') {
+        if (!dropDownValues[currentArea].includes(popupInput)) {
+            dropDownValues[currentArea].push(popupInput);
+        } else {
+            alert("Name already exists in this company.");
+            return;
+        }
+    } else if (currentOperation === 'editName') {
+        const index = dropDownValues[currentArea].indexOf(currentOperation);
+        if (index > -1) {
+            dropDownValues[currentArea][index] = popupInput;
+        }
+    }
+
+    showSelectedArea();
+    closePopup();
+}
+
+function saveData() {
+    console.log(JSON.stringify(dropDownValues, null, 2));
+    UpdateDBCompanyData(JSON.stringify(dropDownValues, null, 2))
+    document.getElementById('mainPopup').style.display = 'none';
+}
+
+function openMainPopup() {
+    document.getElementById('mainPopup').style.display = 'flex';
+}
+
+function closeMainPopup() {
+    document.getElementById('mainPopup').style.display = 'none';
+}
+
+function UpdateDBCompanyData(json) {
+
+    fetch(DomainUrl + "?action=updateDropDown", {
+        method: 'POST',
+        redirect: 'follow',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json)
+    })
+    .then(response => {
+        console.log('Response from POST request:', response);
+        fetchDropDownData();
+    })
+    .catch(error => {
+        console.error('Error with POST request:', error);
+    });
+}
+
+function addUser() {
+    const usernameInput = document.getElementById('username');
+    const username = usernameInput.value.trim();
+
+    if (username) {
+        let users = userData ? userData.split(',') : [];
+
+        if (!users.includes(username)) {
+            users.push(username);
+            userData = users.join(',');
+            updateUserList();
+            usernameInput.value = '';
+        } else {
+            alert('User name already exists');
+        }
+    } else {
+        alert('Please enter a user name');
+    }
+}
+
+function deleteUser(index) {
+    let users = userData.split(',');
+    users.splice(index, 1);
+    userData = users.join(',');
+    updateUserList();
+}
+
+function updateUserList() {
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+
+    let users = userData.split(',');
+    users.forEach((user, index) => {
+        if (user) {
+            const li = document.createElement('li');
+            li.textContent = user;
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => deleteUser(index);
+            li.appendChild(deleteButton);
+            userList.appendChild(li);
+        }
+    });
+}
+function saveUsers() {
+    console.log(JSON.stringify(userData, null, 2));
+    closeUserManagementPopup();
+    UpdateCreditUsersData(userData);
+}
+
+function openUserManagementPopup() {
+    document.getElementById('userManagementPopup').style.display = 'flex';
+}
+
+function closeUserManagementPopup() {
+    document.getElementById('userManagementPopup').style.display = 'none';
+}
+
+function UpdateCreditUsersData(json) {
+
+    fetch(DomainUrl + "?action=updateCreditUsers", {
+        method: 'POST',
+        redirect: 'follow',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json)
+    })
+    .then(response => {
+        console.log('Response from POST request:', response);
+        fetchCreditData();
+    })
+    .catch(error => {
+        console.error('Error with POST request:', error);
+    });
+}
+
+async function fetchCreditData() {
+    //google.script.run.withSuccessHandler(renderTable).getData();
+    const url = DomainUrl+"?action=getCreditUsers"; // Replace with your actual web app URL
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        console.log('GET request data:', data);
+        userData = data;
+        updateUserList();
+    })
+    .catch(error => {
+        console.error('Error with GET request:', error);
+    });
+}
+
+function updateCreditDropdown()
+{
+    var selectedValue = document.getElementById('transactionType').value
+
+    if(selectedValue == "Debit")
+    {
+        document.getElementById('firstDropdown').disabled = true;
+        
+        let users = userData ? userData.split(',') : [];
+        
+        secondDropdown.innerHTML="";
+        users.forEach(function(name) {
+            const option = document.createElement('option');
+            option.value = name;
+            option.text = name;
+            secondDropdown.appendChild(option);
+        });
+    }
+    else
+    {
+        document.getElementById('firstDropdown').disabled = false;
+        populateFirstDropdown();
     }
 }

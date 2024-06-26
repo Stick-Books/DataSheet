@@ -6,18 +6,22 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet">
-    <script src="BackEnd.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
     <link href="Styles.css" rel="stylesheet">
+    <script src="BackEnd.js"></script>
 </head>
 <body>
 
 <h2 style="margin-top: 20px;margin-bottom: 10px;">Cash Calculator</h2>
 <div id='tallyAmount'></div>
 
-<input style="margin: 0px;width: 200px;position: absolute;top: 15px;right: 100px;" type="date" id="selectedDate" name="selected-date">
+<input style="margin: 0px;width: 200px;position: absolute;top: 15px;right: 270px;" type="date" id="selectedDate" name="selected-date">
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 750px;" class="btn btn-outline-primary btn-sm"  onclick="openUserManagementPopup()">Open User Management</button>
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 500px;" class="btn btn-outline-primary btn-sm" class="button" onclick="openMainPopup()">Open Company Management</button>
+<button style="margin: 0px;width: 140px;position: absolute;top: 20px;height: 30px;right: 100px;" id="exportButton" class="btn btn-outline-primary btn-sm" onclick="Export()">Export to Excel</button>
 <!-- Add button -->
 <button  id="addBtn" class="btn btn-outline-primary btn-sm">
     <span class="plus-symbol">+</span> Add
@@ -85,23 +89,13 @@
         <div style="width: 45%; margin: 10px;">
             <h3 style="margin: 0px 0px 5px 0px;">Other Details</h3>
             <label style="margin: 0px;" for="transactionType">Transaction Type</label>
-            <select style="margin: 0px;" id="transactionType">
+            <select style="margin: 0px;" id="transactionType" onchange="updateCreditDropdown()">
                 <option value="Credit">Credit</option>
                 <option value="Debit">Debit</option>
             </select><br>
-            <!-- <label style="margin: 0px;" for="paymentType">Payment Type</label>
-            <select style="margin: 0px;" id="paymentType">
-                <option value="AEPS">AEPS</option>
-                <option value="UPITransfer">UPI Transfer</option>
-                <option value="WithdrawDP">Withdraw DP</option>
-                <option value="Xerox/PrintOut">Xerox/PrintOut</option>
-                <option value="EB">EB</option>
-                <option value="MoneyTransfer">Money Transfer</option>
-                <option value="Others">Others</option>
-            </select><br> -->
-            <label style="margin: 0px;" for="firstDropdown">Select Area:</label>
+            <label style="margin: 0px;" for="firstDropdown">Select Company:</label>
             <select style="margin: 0px;" id="firstDropdown" onchange="updateSecondDropdown()">
-                <option value="">--Select an Area--</option>
+                <option disabled selected value="">--Select an Company--</option>
             </select><br>
             <label style="margin: 0px;" for="secondDropdown">Select Name:</label>
             <select style="margin: 0px;" id="secondDropdown">
@@ -114,6 +108,68 @@
     </form>
   </div>
 </div>
+
+<div class="main-popup" id="mainPopup">
+    <div class="main-popup-content">
+        <div class="main-popup-header">
+            <h2>Company Management</h2>
+            <span class="close" onclick="closeMainPopup()">&times;</span>
+        </div>
+        <div class="main-popup-body">
+            <div class="buttons">
+                <button class="button add-company" onclick="openPopup('addArea')">Add company</button>
+                <button class="button save" onclick="saveData()">Save</button>
+            </div>
+
+            <select id="areaSelector" onchange="showSelectedArea()">
+                <option value="" disabled selected>Select an company</option>
+            </select>
+
+            <button class="button delete-company" onclick="deleteArea()" style="margin-top: 10px;margin-bottom: 10px;">Delete company</button>
+
+            <div class="table-container">
+                <table id="areaTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 395px;">Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <button class="button add-name" style="margin-top: 10px;margin-bottom: 10px;" onclick="openPopup('addName')" style="display:none;">Add Name</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup" id="popup">
+    <div class="popup-content">
+        <div class="popup-header">
+            <h2 id="popupTitle"></h2>
+            <span class="close" onclick="closePopup()">&times;</span>
+        </div>
+        <div class="popup-body">
+            <input type="text" id="popupInput" placeholder="Enter name">
+            <button class="button" id="popupSaveButton" onclick="savePopupData()">Save</button>
+        </div>
+    </div>
+</div>
+
+<div id="user-management-app">
+    <div id="userManagementPopup" class="credit-users-popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeUserManagementPopup()">&times;</span>
+            <h1>User Management</h1>
+            <input type="text" id="username" placeholder="Enter user name">
+            <button onclick="addUser()">Add User</button>
+            <ul id="userList"></ul>
+            <button onclick="saveUsers()">Save Users</button>
+        </div>
+    </div>
+</div>
+
 <div id="wrapper"></div>
 </body>
 </html>

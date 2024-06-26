@@ -17,6 +17,11 @@ function doGet(e) {
     var data = getDropDownDataAsJson();
     return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
   }
+  else if(action == "getCreditUsers")
+  {
+    var data = getCreditUsersDataAsJson();
+    return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 function doPost(e) {
@@ -31,6 +36,12 @@ switch (operation) {
     case 'update':
       responseData = updateData(requestData.rowIndex, requestData,requestData.tableName);
       break;
+    case 'updateDropDown':
+      responseData = updateDropDown(requestData);
+      break;
+    case 'updateCreditUsers':
+      responseData = updateCreditUsersSheet(requestData);
+      break;
     case 'delete':
       responseData = deleteData(requestData.rowIndex,requestData.tableName);
       break;
@@ -41,37 +52,55 @@ switch (operation) {
 
   return ContentService.createTextOutput(JSON.stringify(responseData)).setMimeType(ContentService.MimeType.JSON);
 }
+function updateCreditUsersSheet(jsonData) {
+  checkAndCreateSheet('CreditUsersSheet');
+ // Open the spreadsheet and the specific sheet
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet2 = spreadsheet.getSheetByName('CreditUsersSheet');
+  
+  // Set the JSON data in the first cell (A1)
+  sheet2.getRange('A1').setValue(jsonData);
+  
+  // Parse the JSON data from the first cell
+  var jsonString = sheet2.getRange('A1').getValue();
+  var data = JSON.parse(jsonString);
+
+  return data; 
+}
+function updateDropDown(jsonData) {
+
+ // Open the spreadsheet and the specific sheet
+   checkAndCreateSheet('DropDownSheet');
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet2 = spreadsheet.getSheetByName('DropDownSheet');
+  
+  // Set the JSON data in the first cell (A1)
+  sheet2.getRange('A1').setValue(jsonData);
+  
+  // Parse the JSON data from the first cell
+  var jsonString = sheet2.getRange('A1').getValue();
+  var data = JSON.parse(jsonString);
+
+  return data; 
+}
 
 function getDropDownDataAsJson() {
   // Open the spreadsheet and the specific sheet
+  checkAndCreateSheet('DropDownSheet');
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet2 = spreadsheet.getSheetByName('DropDownSheet');
-
-  // Get all data in the sheet
-  var data = sheet2.getDataRange().getValues();
-  
-  // Get headers (first row)
-  var headers = data[0];
-  
-  // Create a JSON object
-  var result = {};
-  
-  // Loop through the data rows
-  for (var i = 1; i < data.length; i++) {
-    for (var j = 0; j < headers.length; j++) {
-      if (!result[headers[j]]) {
-        result[headers[j]] = [];
-      }
-      if (data[i][j]) {
-        result[headers[j]].push(data[i][j]);
-      }
-    }
-  }
-  
-  // Convert result to JSON
+  var result = sheet2.getRange('A1').getValue();
   var jsonResult = JSON.stringify(result);
-  
-  // Return the JSON result
+  return jsonResult;
+}
+
+function getCreditUsersDataAsJson() {
+  // Open the spreadsheet and the specific sheet
+  checkAndCreateSheet('CreditUsersSheet');
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet2 = spreadsheet.getSheetByName('CreditUsersSheet');
+  var result = sheet2.getRange('A1').getValue();
+  var jsonResult = result;
   return jsonResult;
 }
 
