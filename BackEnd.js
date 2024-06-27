@@ -147,6 +147,7 @@ function renderTable(data) {
         twoHundred: 0,
         oneHundred: 0,
         fifty: 0,
+        twenty:0,
         ten: 0,
         five: 0,
         two: 0,
@@ -200,6 +201,7 @@ function renderTable(data) {
         total.twoHundred += transaction.twoHundred * multiplier;
         total.oneHundred += transaction.oneHundred * multiplier;
         total.fifty += transaction.fifty * multiplier;
+        total.twenty += transaction.twenty * multiplier;
         total.ten += transaction.ten * multiplier;
         total.five += transaction.five * multiplier;
         total.two += transaction.two * multiplier;
