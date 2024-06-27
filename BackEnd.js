@@ -8,11 +8,13 @@ let currentOperation = null;
 var userData;
 
 document.addEventListener('DOMContentLoaded', function() {
+    toggleBlur();
     setDefaultDate();
     AssigneValues();
     fetchData(document.getElementById('selectedDate').value);
     fetchDropDownData();
     fetchCreditData();
+    toggleBlur();
 });
 
 function setDefaultDate() {
@@ -54,6 +56,7 @@ function AssigneValues()
     // When the user clicks the button, open the modal 
     btn.onclick = function() {
     modal.style.display = "block";
+    document.getElementById('firstDropdown').disabled = false;
     populateFirstDropdown();
 
     var form = document.getElementById("cashForm");
@@ -94,6 +97,7 @@ function AssigneValues()
 async function fetchData(date) {
     //google.script.run.withSuccessHandler(renderTable).getData();
     let dateParts = date.split('-');
+    toggleBlur();
 
     // Rearrange the parts to the desired format (dd-mm-yyyy)
     let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
@@ -105,6 +109,7 @@ async function fetchData(date) {
     .then(data => {
         console.log('GET request data:', data);
         renderTable(data);
+        toggleBlur();
         // Handle the data from the GET request
     })
     .catch(error => {
@@ -136,7 +141,20 @@ function renderTable(data) {
     document.getElementById("wrapper").innerHTML = "";
     var tallyAmount = 0;
     tableData = data;
-    
+
+    let total = {
+        fiveHundred: 0,
+        twoHundred: 0,
+        oneHundred: 0,
+        fifty: 0,
+        ten: 0,
+        five: 0,
+        two: 0,
+        one: 0,
+        dp: 0,
+        others: 0
+      };
+      
     const formattedData = data.map((row, index) => {
         if (row.transactionType === "Credit") {
             console.log("Credit");
@@ -145,6 +163,7 @@ function renderTable(data) {
             console.log("Debit");
             tallyAmount -= row.total;
         }
+
         
         return [
             row.companyName || '',
@@ -173,6 +192,48 @@ function renderTable(data) {
             `)
         ];
     });
+
+    data.forEach(transaction => {
+        const multiplier = transaction.transactionType === "Debit" ? -1 : 1;
+      
+        total.fiveHundred += transaction.fiveHundred * multiplier;
+        total.twoHundred += transaction.twoHundred * multiplier;
+        total.oneHundred += transaction.oneHundred * multiplier;
+        total.fifty += transaction.fifty * multiplier;
+        total.ten += transaction.ten * multiplier;
+        total.five += transaction.five * multiplier;
+        total.two += transaction.two * multiplier;
+        total.one += transaction.one * multiplier;
+        total.dp += transaction.dp * multiplier;
+        total.others += transaction.others * multiplier;
+      });
+      
+      const dataRow = document.getElementById("dataRow");
+      
+      dataRow.innerHTML="";
+      dataRow.innerHTML += '<tr><th rowspan="2">Net Available</th></tr>'
+      Object.keys(total).forEach(key => {
+          const cell = document.createElement("td");
+          cell.textContent = total[key];
+          if (total[key] >= 0) {
+              cell.classList.add('currency-positive');
+          } else {
+              cell.classList.add('currency-negative');
+          }
+          dataRow.appendChild(cell);
+      });
+
+      const netAvailableCell = document.createElement("td");
+      const netAvailable = tallyAmount;//Object.values(total).reduce((acc, value) => acc + value, 0);
+      netAvailableCell.textContent = netAvailable;
+      if (netAvailable >= 0) {
+          netAvailableCell.classList.add('currency-positive');
+      } else {
+          netAvailableCell.classList.add('currency-negative');
+          console.log("negative");
+      }
+      dataRow.appendChild(netAvailableCell);
+    
     
     if (gridInstance) {
         gridInstance.updateConfig({
@@ -209,7 +270,7 @@ function renderTable(data) {
     }
     
     console.log(tallyAmount);
-    document.getElementById('tallyAmount').innerHTML = tallyAmount;
+    //document.getElementById('tallyAmount').innerHTML = tallyAmount;
 }
 
 
@@ -296,15 +357,35 @@ function editRow(index) {
     // Fetch data from the server again to get the most recent state
     //google.script.run.withSuccessHandler(function(data) {
         var rowData = tableData[index];
-        document.getElementById('firstDropdown').value = rowData.companyName;
-        if (rowData.companyName) {
-            dropDownValues[rowData.companyName].forEach(name => {
+
+        if(rowData.transactionType == "Debit")
+        {
+            document.getElementById('firstDropdown').disabled = true;
+        
+            let users = userData ? userData.split(',') : [];
+            
+            secondDropdown.innerHTML="";
+            users.forEach(function(name) {
                 const option = document.createElement('option');
                 option.value = name;
                 option.text = name;
                 secondDropdown.appendChild(option);
             });
         }
+        else
+        {
+            document.getElementById('firstDropdown').disabled = false;
+            document.getElementById('firstDropdown').value = rowData.companyName;
+            if (rowData.companyName) {
+                dropDownValues[rowData.companyName].forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.text = name;
+                    secondDropdown.appendChild(option);
+                });
+            }
+        }
+        
         document.getElementById('secondDropdown').value = rowData.name;
         document.getElementById('transactionType').value = rowData.transactionType;
         //document.getElementById('paymentType').value = rowData.paymentType;
@@ -819,5 +900,17 @@ function updateCreditDropdown()
     {
         document.getElementById('firstDropdown').disabled = false;
         populateFirstDropdown();
+    }
+}
+
+function toggleBlur() {
+    var spinnerOverlay = document.getElementById('spinnerOverlay');
+    var mainContent = document.getElementById('mainContent');
+    if (spinnerOverlay.style.display === 'none' || spinnerOverlay.style.display === '') {
+        spinnerOverlay.style.display = 'flex';
+        mainContent.classList.add('blurred');
+    } else {
+        spinnerOverlay.style.display = 'none';
+        mainContent.classList.remove('blurred');
     }
 }

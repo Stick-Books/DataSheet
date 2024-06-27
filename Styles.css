@@ -312,3 +312,72 @@ li button {
 li button:hover {
     background-color: #c0392b;
 }
+.currency-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: center;
+}
+.currency-table th, .currency-table td {
+    padding: 12px;
+    border: 1px solid #dddddd;
+}
+.currency-table th {
+    background-color: #6c757d;
+    color: white;
+}
+.currency-table thead th[rowspan="2"] {
+    background-color: #6c757d;
+    color: white;
+    vertical-align: middle;
+}
+.currency-table tbody td {
+    background-color: #e9ecef;
+}
+.currency-table tbody td:first-child {
+    background-color: #28a745;
+    color: white;
+}
+.currency-table tbody td:last-child {
+    font-weight: bold;
+}
+.currency-positive {
+    background-color: #28a745 !important;
+    color: white;
+}
+.currency-negative {
+    background-color: #dc3545 !important;
+    color: white;
+}
+.spinner-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.blurred {
+    filter: blur(5px);
+    transition: filter 0.3s;
+}
