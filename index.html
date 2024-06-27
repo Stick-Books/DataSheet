@@ -18,12 +18,12 @@
     <div class="spinner"></div>
 </div>
 <div id="mainContent">
-<h2 style="margin-top: 20px;margin-bottom: 10px;">Cash Calculator</h2>
+<h2 style="margin-top: 20px;margin-bottom: 10px;">Rough Note</h2>
 <!-- <div id='tallyAmount'></div> -->
 
 <input style="margin: 0px;width: 200px;position: absolute;top: 15px;right: 270px;" type="date" id="selectedDate" name="selected-date">
-<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 750px;" class="btn btn-outline-primary btn-sm"  onclick="openUserManagementPopup()">Open User Management</button>
-<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 500px;" class="btn btn-outline-primary btn-sm" class="button" onclick="openMainPopup()">Open Company Management</button>
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 750px;" class="btn btn-outline-primary btn-sm"  onclick="openUserManagementPopup()">Crediters Management</button>
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 500px;" class="btn btn-outline-primary btn-sm" class="button" onclick="openMainPopup()">Company Management</button>
 <button style="margin: 0px;width: 140px;position: absolute;top: 20px;height: 30px;right: 100px;" id="exportButton" class="btn btn-outline-primary btn-sm" onclick="Export()">Export to Excel</button>
 <!-- Add button -->
 <button  id="addBtn" class="btn btn-outline-primary btn-sm">
@@ -116,7 +116,7 @@
     <thead>
         <tr>
             <th rowspan="2">Denominations</th>
-            <th colspan="11">Total Positions</th>
+            <th colspan="9">Total Positions</th>
             <th rowspan="2">Net Available</th>
         </tr>
         <tr id="denominationsRow">
@@ -130,8 +130,8 @@
             <th>5</th>
             <th>2</th>
             <th>1</th>
-            <th>DP</th>
-            <th>Others</th>
+            <!-- <th>DP</th>
+            <th>Others</th> -->
         </tr>
     </thead>
     <tbody>

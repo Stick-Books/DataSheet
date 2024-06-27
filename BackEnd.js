@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setDefaultDate();
     AssigneValues();
     fetchData(document.getElementById('selectedDate').value);
+    fetchPreviousDayData(document.getElementById('selectedDate').value);
     fetchDropDownData();
     fetchCreditData();
     toggleBlur();
@@ -38,6 +39,7 @@ function setDefaultDate() {
         console.log('Date value changed:', dateInput.value);
 
         fetchData(document.getElementById('selectedDate').value);
+        fetchPreviousDayData(document.getElementById('selectedDate').value);
     });
 
 }
@@ -117,6 +119,30 @@ async function fetchData(date) {
     });
 }
 
+// Fetch data from the server
+async function fetchPreviousDayData(date) {
+    //google.script.run.withSuccessHandler(renderTable).getData();
+    let dateParts = date.split('-');
+    toggleBlur();
+
+    // Rearrange the parts to the desired format (dd-mm-yyyy)
+    let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
+    const url = DomainUrl+"?action=getTable("+formattedDate+")"; // Replace with your actual web app URL
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        console.log('GET request data:', data);
+        //renderTable(data);
+        toggleBlur();
+        // Handle the data from the GET request
+    })
+    .catch(error => {
+        console.error('Error with GET request:', error);
+    });
+}
+
 async function fetchDropDownData() {
     //google.script.run.withSuccessHandler(renderTable).getData();
     const url = DomainUrl+"?action=getDropDown"; // Replace with your actual web app URL
@@ -152,8 +178,6 @@ function renderTable(data) {
         five: 0,
         two: 0,
         one: 0,
-        dp: 0,
-        others: 0
       };
       
     const formattedData = data.map((row, index) => {
@@ -206,8 +230,8 @@ function renderTable(data) {
         total.five += transaction.five * multiplier;
         total.two += transaction.two * multiplier;
         total.one += transaction.one * multiplier;
-        total.dp += transaction.dp * multiplier;
-        total.others += transaction.others * multiplier;
+        //total.dp += transaction.dp * multiplier;
+        //total.others += transaction.others * multiplier;
       });
       
       const dataRow = document.getElementById("dataRow");
@@ -226,7 +250,15 @@ function renderTable(data) {
       });
 
       const netAvailableCell = document.createElement("td");
-      const netAvailable = tallyAmount;//Object.values(total).reduce((acc, value) => acc + value, 0);
+      const netAvailable = (total.fiveHundred * 500) +
+                            (total.twoHundred * 200) +
+                            (total.oneHundred * 100) +
+                            (total.fifty * 50) +
+                            (total.twenty * 20) +
+                            (total.ten * 10) +
+                            (total.five * 5) +
+                            (total.two * 2) +
+                            (total.one * 1);
       netAvailableCell.textContent = netAvailable;
       if (netAvailable >= 0) {
           netAvailableCell.classList.add('currency-positive');
@@ -246,10 +278,16 @@ function renderTable(data) {
             pagination: {
                 limit: 15
             },
+            sort: true,
             columns: [
                 { name: 'Company Name', width: '120px' },
                 { name: 'Name', width: '150px' },
-                { name: 'Transaction Type', width: '100px' },
+                { name: 'Transaction Type', width: '100px', 
+                    formatter: (cell) => {
+                        const color = cell.toLowerCase() === 'credit' ? 'green' : (cell.toLowerCase() === 'debit' ? 'red' : 'transparent');
+                        return gridjs.html(`<span style="background-color: ${color}; color: white; padding: 5px; border-radius: 3px;">${cell}</span>`);
+                      }
+                },
                 //{ name: 'Payment Type', width: '120px' },
                 { name: '500', width: '45px' },
                 { name: '200', width: '45px' },
@@ -363,6 +401,11 @@ function editRow(index) {
         if(rowData.transactionType == "Debit")
         {
             document.getElementById('firstDropdown').disabled = true;
+            document.getElementById('firstDropdown').innerHTML="";
+            var dropdown= document.getElementById('firstDropdown');
+            dropdown.innerHTML = '<option value="Cash">Cash</option>';
+            dropdown.value = "Cash";
+            dropdown.disabled = true;
         
             let users = userData ? userData.split(',') : [];
             
@@ -377,14 +420,20 @@ function editRow(index) {
         else
         {
             document.getElementById('firstDropdown').disabled = false;
+            //document.getElementById('firstDropdown').innerHTML="";
+            populateFirstDropdown();
             document.getElementById('firstDropdown').value = rowData.companyName;
             if (rowData.companyName) {
-                dropDownValues[rowData.companyName].forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.text = name;
-                    secondDropdown.appendChild(option);
-                });
+                if(dropDownValues[rowData.companyName])
+                {
+                    dropDownValues[rowData.companyName].forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.text = name;
+                        secondDropdown.appendChild(option);
+                    });
+                }
+               
             }
         }
         
@@ -570,19 +619,19 @@ function Export() {
                 'Company Name': item.companyName,
                 'Name': item.name,
                 'Transaction Type': item.transactionType,
-                'Five Hundred': item.fiveHundred,
-                'Two Hundred': item.twoHundred,
-                'One Hundred': item.oneHundred,
-                'Fifty': item.fifty,
-                'Twenty': item.twenty,
-                'Ten': item.ten,
-                'Five': item.five,
-                'Two': item.two,
-                'One': item.one,
-                'Others': item.others,
+                // 'Five Hundred': item.fiveHundred,
+                // 'Two Hundred': item.twoHundred,
+                // 'One Hundred': item.oneHundred,
+                // 'Fifty': item.fifty,
+                // 'Twenty': item.twenty,
+                // 'Ten': item.ten,
+                // 'Five': item.five,
+                // 'Two': item.two,
+                // 'One': item.one,
+                // 'Others': item.others,
                 'Cash': item.cash,
                 'DP': item.dp,
-                'Remarks': item.remarks,
+                //'Remarks': item.remarks,
                 'Total': item.total, 
             };
         });
@@ -886,8 +935,12 @@ function updateCreditDropdown()
 
     if(selectedValue == "Debit")
     {
-        document.getElementById('firstDropdown').disabled = true;
-        
+        //document.getElementById('firstDropdown').disabled = true;
+        document.getElementById('firstDropdown').innerHTML="";
+        var dropdown= document.getElementById('firstDropdown');
+        dropdown.innerHTML = '<option value="Cash">Cash</option>';
+        dropdown.value = "Cash";
+        dropdown.disabled = true;
         let users = userData ? userData.split(',') : [];
         
         secondDropdown.innerHTML="";
