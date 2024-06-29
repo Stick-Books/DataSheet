@@ -40,6 +40,7 @@ function setDefaultDate() {
 
         fetchData(document.getElementById('selectedDate').value);
         fetchPreviousDayData(document.getElementById('selectedDate').value);
+        
     });
 
 }
@@ -122,11 +123,13 @@ async function fetchData(date) {
 // Fetch data from the server
 async function fetchPreviousDayData(date) {
     //google.script.run.withSuccessHandler(renderTable).getData();
-    let dateParts = date.split('-');
-    toggleBlur();
+    let selectedDate = new Date(date);
+    let previousDate = new Date(date);
+    previousDate.setDate(selectedDate.getDate() - 1);
 
+    //let dateParts = date.split('-');
     // Rearrange the parts to the desired format (dd-mm-yyyy)
-    let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+    let formattedDate = formatDate(previousDate);
 
     const url = DomainUrl+"?action=getTable("+formattedDate+")"; // Replace with your actual web app URL
 
@@ -134,13 +137,84 @@ async function fetchPreviousDayData(date) {
     .then(response => response.json())
     .then(data => {
         console.log('GET request data:', data);
+
+        let total = {
+            fiveHundred: 0,
+            twoHundred: 0,
+            oneHundred: 0,
+            fifty: 0,
+            twenty:0,
+            ten: 0,
+            five: 0,
+            two: 0,
+            one: 0,
+        };
+
+        data.forEach(transaction => {
+            const multiplier = transaction.transactionType === "Debit" ? -1 : 1;
+          
+            total.fiveHundred += transaction.fiveHundred * multiplier;
+            total.twoHundred += transaction.twoHundred * multiplier;
+            total.oneHundred += transaction.oneHundred * multiplier;
+            total.fifty += transaction.fifty * multiplier;
+            total.twenty += transaction.twenty * multiplier;
+            total.ten += transaction.ten * multiplier;
+            total.five += transaction.five * multiplier;
+            total.two += transaction.two * multiplier;
+            total.one += transaction.one * multiplier;
+          });
+          
+          const dataRow = document.getElementById("previousdataRow");
+          
+
+
+          dataRow.innerHTML="";
+          dataRow.innerHTML += '<tr><th class="DenominationSizeID">Opening Balance</th></tr>'
+          Object.keys(total).forEach(key => {
+              const cell = document.createElement("td");
+              cell.textContent = total[key];
+              if (total[key] >= 0) {
+                  cell.classList.add('currency-positive');
+              } else {
+                  cell.classList.add('currency-negative');
+              }
+              dataRow.appendChild(cell);
+          });
+          const netAvailable = (total.fiveHundred * 500) +
+                                (total.twoHundred * 200) +
+                                (total.oneHundred * 100) +
+                                (total.fifty * 50) +
+                                (total.twenty * 20) +
+                                (total.ten * 10) +
+                                (total.five * 5) +
+                                (total.two * 2) +
+                                (total.one * 1);
+
+        const cell = document.createElement("td");
+        cell.textContent = netAvailable; 
+        if (netAvailable >= 0) {
+            cell.classList.add('currency-positive');
+        } else {
+            cell.classList.add('currency-negative');
+        }
+
+        cell.classList.add("NetAvailableSizeID");
+        dataRow.appendChild(cell);                   
         //renderTable(data);
-        toggleBlur();
+        //toggleBlur();
         // Handle the data from the GET request
     })
     .catch(error => {
         console.error('Error with GET request:', error);
     });
+}
+
+function formatDate(date) {
+    let day = String(date.getDate()).padStart(2, '0');
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    let year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
 }
 
 async function fetchDropDownData() {
@@ -267,8 +341,7 @@ function renderTable(data) {
           console.log("negative");
       }
       dataRow.appendChild(netAvailableCell);
-    
-    
+       
     if (gridInstance) {
         gridInstance.updateConfig({
             data: formattedData
@@ -346,7 +419,7 @@ async function submitForm() {
     var date = document.getElementById('selectedDate').value;
     let dateParts = date.split('-');
     let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-
+    toggleBlur();
     var postData = {
         companyName:document.getElementById('firstDropdown').value,
         name:document.getElementById('secondDropdown').value,
@@ -380,10 +453,11 @@ async function submitForm() {
     })
     .then(data => {
         console.log(data);
-        fetchData(document.getElementById('selectedDate').value);
         modal.style.display = "none";
         document.getElementById('cashForm').reset();
         document.getElementById('total').value = '';
+        toggleBlur();
+        fetchData(document.getElementById('selectedDate').value);
         console.log('POST request data:', data);
     })
     .catch(error => {
@@ -461,6 +535,7 @@ function editRow(index) {
 
         // On submit, update the data
         document.querySelector('#SubmitButton').onclick = function() {
+            toggleBlur();
             var date = document.getElementById('selectedDate').value;
             let dateParts = date.split('-');
             let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
@@ -502,6 +577,7 @@ function editRow(index) {
                     modal.style.display = "none";
                     document.getElementById('cashForm').reset();
                     document.getElementById('total').value = '';
+                    toggleBlur();
                     fetchData(document.getElementById('selectedDate').value);
                     modal.style.display = "none";
                     console.log('POST request data:', data);
@@ -519,7 +595,7 @@ function deleteRow(index) {
         var date = document.getElementById('selectedDate').value;
         let dateParts = date.split('-');
         let formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-
+        toggleBlur();
         fetch(DomainUrl + "?action=delete", {
             method: 'POST',
             redirect: 'follow',
@@ -534,6 +610,7 @@ function deleteRow(index) {
             modal.style.display = "none";
             document.getElementById('cashForm').reset();
             document.getElementById('total').value = '';
+            toggleBlur();
             fetchData(document.getElementById('selectedDate').value);
         })
         .catch(error => {

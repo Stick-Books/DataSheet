@@ -115,9 +115,9 @@
 <table class="currency-table" id="currencyTable">
     <thead>
         <tr>
-            <th rowspan="2">Denominations</th>
+            <th class="DenominationSizeID" rowspan="2">Denominations</th>
             <th colspan="9">Total Positions</th>
-            <th rowspan="2">Net Available</th>
+            <th class="NetAvailableSizeID" rowspan="2">Net Available</th>
         </tr>
         <tr id="denominationsRow">
             <!-- Denomination headers will be populated by JavaScript -->
@@ -137,6 +137,15 @@
     <tbody>
         <tr id="dataRow">
             <td>Net Available</td>
+            <!-- Data cells will be populated by JavaScript -->
+        </tr>
+    </tbody>
+</table>
+
+<table class="previous-table" id="previousTable" style="margin-bottom: 20px;">
+    <tbody>
+        <tr id="previousdataRow">
+            <td>Opening Balance</td>
             <!-- Data cells will be populated by JavaScript -->
         </tr>
     </tbody>
