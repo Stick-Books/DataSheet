@@ -6,6 +6,7 @@ let gridInstance;
 let currentArea = null;
 let currentOperation = null;
 var userData;
+var isEditOpen = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     toggleBlur();
@@ -61,7 +62,8 @@ function AssigneValues()
     modal.style.display = "block";
     document.getElementById('firstDropdown').disabled = false;
     populateFirstDropdown();
-
+    document.getElementById('SubmitButton').style.display="block";
+    document.getElementById('editSubmitButton').style.display="none";
     var form = document.getElementById("cashForm");
 
     // Clear all input elements
@@ -86,12 +88,14 @@ function AssigneValues()
     // When the user clicks on <span> (x), close the modal
     span.onclick = function() {
         modal.style.display = "none";
+        isEditOpen=false;
     }
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
+            isEditOpen = false;
         }
     }
 
@@ -471,7 +475,9 @@ function editRow(index) {
     // Fetch data from the server again to get the most recent state
     //google.script.run.withSuccessHandler(function(data) {
         var rowData = tableData[index];
-
+        isEditOpen = true; 
+        document.getElementById('SubmitButton').style.display="none";
+        document.getElementById('editSubmitButton').style.display="block";
         if(rowData.transactionType == "Debit")
         {
             document.getElementById('firstDropdown').disabled = true;
@@ -534,7 +540,8 @@ function editRow(index) {
         modal.style.display = "block";
 
         // On submit, update the data
-        document.querySelector('#SubmitButton').onclick = function() {
+        document.querySelector('#editSubmitButton').onclick = function() {
+
             toggleBlur();
             var date = document.getElementById('selectedDate').value;
             let dateParts = date.split('-');
@@ -573,6 +580,7 @@ function editRow(index) {
                 body: JSON.stringify(updatedData)
                 })
                 .then(data => {
+                    isEditOpen = false;
                     console.log(data);
                     modal.style.display = "none";
                     document.getElementById('cashForm').reset();
@@ -585,6 +593,7 @@ function editRow(index) {
                 .catch(error => {
                 console.error('Error with POST request:', error);
             });
+           
         };
     //}).getData();
 }
@@ -1046,3 +1055,25 @@ function toggleBlur() {
         mainContent.classList.remove('blurred');
     }
 }
+
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.key === 's') {
+        event.preventDefault(); // Prevent the default browser save action
+        //triggerMethod(); // Call your custom method
+        var model = document.querySelector('modal')
+        if(modal.style.display=="block")
+        {
+            var submit = document.querySelector("#SubmitButton");
+            var editSubmit =document.querySelector("#editSubmitButton");
+            if(submit != null && submit.style.display=="block")
+            {
+                document.querySelector('#SubmitButton').click();
+            }
+            else if(editSubmit!= null &&editSubmit.style.display=="block")
+            {
+                document.querySelector('#editSubmitButton').click();
+            }
+        }
+        
+    }
+});
