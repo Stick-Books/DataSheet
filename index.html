@@ -22,8 +22,8 @@
 <!-- <div id='tallyAmount'></div> -->
 
 <input style="margin: 0px;width: 200px;position: absolute;top: 15px;right: 270px;" type="date" id="selectedDate" name="selected-date">
-<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 750px;" class="btn btn-outline-primary btn-sm"  onclick="openUserManagementPopup()">Debiters Management</button>
-<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 500px;" class="btn btn-outline-primary btn-sm" class="button" onclick="openMainPopup()">Company Management</button>
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 750px;" class="btn btn-outline-primary btn-sm"  onclick="openPasswordPopup('debit')">Debiters Management</button>
+<button style="margin: 0px;width: 200px;position: absolute;top: 20px;height: 30px;right: 500px;" class="btn btn-outline-primary btn-sm" class="button" onclick="openPasswordPopup('company')">Company Management</button>
 <button style="margin: 0px;width: 140px;position: absolute;top: 20px;height: 30px;right: 100px;" id="exportButton" class="btn btn-outline-primary btn-sm" onclick="Export()">Export to Excel</button>
 <!-- Add button -->
 <button  id="addBtn" class="btn btn-outline-primary btn-sm">
@@ -211,6 +211,13 @@
             <button onclick="saveUsers()">Save Users</button>
         </div>
     </div>
+</div>
+
+<div class="popup password-popup" id="passwordPopup">
+    <div class="popup-header">Enter Password</div>
+    <input type="password" id="passwordInput" class="popup-input" placeholder="Password">
+    <button class="popup-button" onclick="verifyPassword()">Submit</button>
+    <button class="popup-button" onclick="closePopupByID('passwordPopup')">Cancel</button>
 </div>
 
 <div id="wrapper"></div>

@@ -7,6 +7,7 @@ let currentArea = null;
 let currentOperation = null;
 var userData;
 var isEditOpen = false;
+var popuptoOpen='';
 
 document.addEventListener('DOMContentLoaded', function() {
     toggleBlur();
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchDropDownData();
     fetchCreditData();
     toggleBlur();
+    decodeAndExecute(encodedFunction);
 });
 
 function setDefaultDate() {
@@ -204,9 +206,6 @@ async function fetchPreviousDayData(date) {
 
         cell.classList.add("NetAvailableSizeID");
         dataRow.appendChild(cell);                   
-        //renderTable(data);
-        //toggleBlur();
-        // Handle the data from the GET request
     })
     .catch(error => {
         console.error('Error with GET request:', error);
@@ -705,19 +704,8 @@ function Export() {
                 'Company Name': item.companyName,
                 'Name': item.name,
                 'Transaction Type': item.transactionType,
-                // 'Five Hundred': item.fiveHundred,
-                // 'Two Hundred': item.twoHundred,
-                // 'One Hundred': item.oneHundred,
-                // 'Fifty': item.fifty,
-                // 'Twenty': item.twenty,
-                // 'Ten': item.ten,
-                // 'Five': item.five,
-                // 'Two': item.two,
-                // 'One': item.one,
-                // 'Others': item.others,
                 'Cash': item.cash,
                 'DP': item.dp,
-                //'Remarks': item.remarks,
                 'Total': item.total, 
             };
         });
@@ -850,11 +838,17 @@ function openPopup(operation, target) {
 function closePopup() {
     const popup = document.getElementById('popup');
     const popupInput = document.getElementById('popupInput');
-
+    const passwordpopup = document.getElementById('popup'); 
+    passwordpopup.style.display= 'none';
+    var paswordinput=document.getElementById('passwordInput');
+    paswordinput.value = '';
     popupInput.value = '';
     popup.style.display = 'none';
 }
-
+function closePopupByID(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+    //document.getElementById('overlay').style.display = 'none';
+}
 function savePopupData() {
     const popupInput = document.getElementById('popupInput').value.trim();
 
@@ -885,6 +879,26 @@ function savePopupData() {
 
     showSelectedArea();
     closePopup();
+}
+
+function verifyPassword() {
+
+    const enteredPassword = document.getElementById('passwordInput').value;
+    if (enteredPassword === getPassFromVm()) {
+        closePopupByID('passwordPopup');
+
+        if(popuptoOpen =='debit')
+        {
+            openUserManagementPopup();
+        }
+        else if(popuptoOpen =='company')
+        {
+            openMainPopup();
+        }
+        
+    } else {
+        alert('Incorrect password');
+    }
 }
 
 function saveData() {
@@ -969,6 +983,11 @@ function saveUsers() {
     console.log(JSON.stringify(userData, null, 2));
     closeUserManagementPopup();
     UpdateCreditUsersData(userData);
+}
+
+function openPasswordPopup(args) {
+    popuptoOpen=args;
+    document.getElementById('passwordPopup').style.display = 'block';
 }
 
 function openUserManagementPopup() {
@@ -1077,3 +1096,14 @@ document.addEventListener('keydown', function(event) {
         
     }
 });
+
+
+const encodedFunction = 'ZnVuY3Rpb24gZ2V0UGFzc0Zyb21WbSgpe2xldCB0PW5ldyBEYXRlLGU9dC5nZXRGdWxsWWVhcigpLG49KHQuZ2V0TW9udGgoKSsxKS50b1N0cmluZygpLnBhZFN0YXJ0KDIsIjAiKSxhPXQuZ2V0RGF0ZSgpLnRvU3RyaW5nKCkucGFkU3RhcnQoMiwiMCIpLHI9dC5nZXRIb3VycygpLnRvU3RyaW5nKCkucGFkU3RhcnQoMiwiMCIpLGc9dC5nZXRNaW51dGVzKCkudG9TdHJpbmcoKS5wYWRTdGFydCgyLCIwIik7cmV0dXJuYCR7ZX0ke259JHthfWB9Owo=';
+
+function decodeAndExecute(encoded) {
+    const decoded = atob(encoded);
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.text = decoded;
+    document.body.appendChild(script);
+}
