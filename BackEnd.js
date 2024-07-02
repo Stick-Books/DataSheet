@@ -180,9 +180,9 @@ async function fetchPreviousDayData(date) {
               const cell = document.createElement("td");
               cell.textContent = total[key];
               if (total[key] >= 0) {
-                  cell.classList.add('currency-positive');
+                  cell.classList.add('currency-positive-open');
               } else {
-                  cell.classList.add('currency-negative');
+                  cell.classList.add('currency-negative-open');
               }
               dataRow.appendChild(cell);
           });
@@ -199,9 +199,9 @@ async function fetchPreviousDayData(date) {
         const cell = document.createElement("td");
         cell.textContent = netAvailable; 
         if (netAvailable >= 0) {
-            cell.classList.add('currency-positive');
+            cell.classList.add('currency-positive-openTotal');
         } else {
-            cell.classList.add('currency-negative');
+            cell.classList.add('currency-negative-openTotal');
         }
 
         cell.classList.add("NetAvailableSizeID");
@@ -987,6 +987,7 @@ function saveUsers() {
 
 function openPasswordPopup(args) {
     popuptoOpen=args;
+    document.getElementById('passwordInput').value = '';
     document.getElementById('passwordPopup').style.display = 'block';
 }
 
@@ -1076,7 +1077,7 @@ function toggleBlur() {
 }
 
 document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.key === 's') {
+    if (event.altKey && event.key === 'Enter') {
         event.preventDefault(); // Prevent the default browser save action
         //triggerMethod(); // Call your custom method
         var model = document.querySelector('modal')

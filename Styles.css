@@ -347,6 +347,28 @@ li button:hover {
     background-color: #28a745 !important;
     color: white;
 }
+.currency-positive-open{
+    width: 100px;
+    background-color: white !important;
+    color: black;
+}
+.currency-negative-open{
+    width: 100px;
+    background-color: white !important;
+    color: black;
+}
+
+.currency-positive-openTotal{
+    width: 100px;
+    background-color: #ade08a !important;
+    color: white;
+}
+.currency-negative-openTotal{
+    width: 100px;
+    background-color: #f18d97c1 !important;
+    color: white;
+}
+
 .currency-negative {
     width: 100px;
     background-color: #dc3545 !important;
@@ -419,6 +441,7 @@ li button:hover {
     z-index: 5;
 }
 .password-popup .popup-header {
+    margin-left: 15px;
     font-size: 20px;
     margin-bottom: 10px;
 }
