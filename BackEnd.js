@@ -8,12 +8,13 @@ let currentOperation = null;
 var userData;
 var isEditOpen = false;
 var popuptoOpen='';
+var previousdayData;
 
 document.addEventListener('DOMContentLoaded', function() {
     toggleBlur();
     setDefaultDate();
     AssigneValues();
-    fetchData(document.getElementById('selectedDate').value);
+    //fetchData(document.getElementById('selectedDate').value);
     fetchPreviousDayData(document.getElementById('selectedDate').value);
     fetchDropDownData();
     fetchCreditData();
@@ -41,7 +42,7 @@ function setDefaultDate() {
 
         console.log('Date value changed:', dateInput.value);
 
-        fetchData(document.getElementById('selectedDate').value);
+        //fetchData(document.getElementById('selectedDate').value);
         fetchPreviousDayData(document.getElementById('selectedDate').value);
         
     });
@@ -128,6 +129,7 @@ async function fetchData(date) {
 
 // Fetch data from the server
 async function fetchPreviousDayData(date) {
+    toggleBlur();
     //google.script.run.withSuccessHandler(renderTable).getData();
     let selectedDate = new Date(date);
     let previousDate = new Date(date);
@@ -143,7 +145,7 @@ async function fetchPreviousDayData(date) {
     .then(response => response.json())
     .then(data => {
         console.log('GET request data:', data);
-
+        
         let total = {
             fiveHundred: 0,
             twoHundred: 0,
@@ -205,11 +207,15 @@ async function fetchPreviousDayData(date) {
         }
 
         cell.classList.add("NetAvailableSizeID");
-        dataRow.appendChild(cell);                   
+        dataRow.appendChild(cell);
+        previousdayData= total;
+        toggleBlur();
+        fetchData(document.getElementById('selectedDate').value);                   
     })
     .catch(error => {
         console.error('Error with GET request:', error);
     });
+
 }
 
 function formatDate(date) {
@@ -317,7 +323,7 @@ function renderTable(data) {
       dataRow.innerHTML += '<tr><th rowspan="2">Net Available</th></tr>'
       Object.keys(total).forEach(key => {
           const cell = document.createElement("td");
-          cell.textContent = total[key];
+          cell.textContent = total[key]+previousdayData[key];
           cell.style.width='100px';
           if (total[key] >= 0) {
               //cell.classList.add('currency-positive');
@@ -337,7 +343,19 @@ function renderTable(data) {
                             (total.five * 5) +
                             (total.two * 2) +
                             (total.one * 1);
-      netAvailableCell.textContent = netAvailable;
+
+      const previousAvailable = (previousdayData.fiveHundred * 500) +
+                            (previousdayData.twoHundred * 200) +
+                            (previousdayData.oneHundred * 100) +
+                            (previousdayData.fifty * 50) +
+                            (previousdayData.twenty * 20) +
+                            (previousdayData.ten * 10) +
+                            (previousdayData.five * 5) +
+                            (previousdayData.two * 2) +
+                            (previousdayData.one * 1);
+
+      netAvailableCell.textContent = netAvailable+previousAvailable;
+
       if (netAvailable >= 0) {
           netAvailableCell.classList.add('currency-positive');
       } else {
