@@ -333,7 +333,7 @@ li button:hover {
     vertical-align: middle;
 }
 .currency-table tbody td {
-    background-color: #e9ecef;
+    /* background-color: #e9ecef; */
 }
 .currency-table tbody td:first-child {
     background-color: #28a745;
@@ -361,12 +361,12 @@ li button:hover {
 .currency-positive-openTotal{
     width: 100px;
     background-color: #ade08a !important;
-    color: white;
+    color: black;
 }
 .currency-negative-openTotal{
     width: 100px;
     background-color: #f18d97c1 !important;
-    color: white;
+    color: black;
 }
 
 .currency-negative {

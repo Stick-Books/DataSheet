@@ -318,10 +318,11 @@ function renderTable(data) {
       Object.keys(total).forEach(key => {
           const cell = document.createElement("td");
           cell.textContent = total[key];
+          cell.style.width='100px';
           if (total[key] >= 0) {
-              cell.classList.add('currency-positive');
+              //cell.classList.add('currency-positive');
           } else {
-              cell.classList.add('currency-negative');
+              //cell.classList.add('currency-negative');
           }
           dataRow.appendChild(cell);
       });
