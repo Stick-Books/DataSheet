@@ -22,8 +22,99 @@ function doGet(e) {
     var data = getCreditUsersDataAsJson();
     return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
   }
+  else if(action == "getOpeningBalance")
+  {
+    var data = getOpeningBalance();
+    return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
+function getOpeningBalance() {
+  // Use the date parameter as intended
+  checkAndCreateSheet('OpeningBalanceTable');
+  
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet2 = spreadsheet.getSheetByName('OpeningBalanceTable');
+  
+  if (!sheet2) {
+    return []; // Return empty array if sheet is not found
+  }
+  
+  var data = sheet2.getDataRange().getValues();
+  
+  if (data.length === 0 || data[0].length === 1) {
+    return []; // Return empty array if no data or only one column
+  }
+
+  const transformedData = data.map((row, index) => {
+      return {
+        date:row[0],
+        fiveHundred: row[1],
+        twoHundred: row[2],
+        oneHundred: row[3],
+        fifty: row[4],
+        twenty: row[5],
+        ten: row[6],
+        five: row[7],
+        two: row[8],
+        one: row[9],
+        total: row[10]
+      };
+  });
+  
+    return transformedData; 
+}
+
+
+function addOrUpdateOpeningBalance(balanceData) {
+
+  checkAndCreateSheet('OpeningBalanceTable');
+
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet2 = spreadsheet.getSheetByName('OpeningBalanceTable');
+
+  if (!sheet2) {
+    // Create the sheet if it doesn't exist
+    sheet2 = spreadsheet.insertSheet('OpeningBalanceTable');
+  }
+
+  var dataRange = sheet2.getDataRange();
+  var data = dataRange.getValues();
+  
+  // Format date correctly for comparison
+  var formattedDate = balanceData.date.replace(/-/g, '=');
+
+  // Convert balanceData JSON to array
+  var balanceArray = [
+    balanceData.fiveHundred,
+    balanceData.twoHundred,
+    balanceData.oneHundred,
+    balanceData.fifty,
+    balanceData.twenty,
+    balanceData.ten,
+    balanceData.five,
+    balanceData.two,
+    balanceData.one,
+    balanceData.total
+  ];
+
+  // Check if the date exists in the first column
+  var dateExists = false;
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] === formattedDate) {
+      // Update existing row
+      sheet2.getRange(i + 1, 2, 1, balanceArray.length).setValues([balanceArray]);
+      dateExists = true;
+      break;
+    }
+  }
+
+  if (!dateExists) {
+    // Add new row if date does not exist
+    var newRow = [formattedDate].concat(balanceArray);
+    sheet2.appendRow(newRow);
+  }
+}
 function doPost(e) {
   var operation = e.parameter.action;
   var requestData = JSON.parse(e.postData.contents);
@@ -44,6 +135,9 @@ switch (operation) {
       break;
     case 'delete':
       responseData = deleteData(requestData.rowIndex,requestData.tableName);
+      break;
+    case 'closingBalance':
+      responseData = addOrUpdateOpeningBalance(requestData);
       break;
     default:
       responseData = { error: 'Invalid operation' };
@@ -107,21 +201,9 @@ function getCreditUsersDataAsJson() {
 function checkAndCreateSheet(sheetName) {
   // Get the active spreadsheet
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  
-  // Get all sheets in the spreadsheet
-  var sheets = spreadsheet.getSheets();
-  
-  // Iterate through the sheets and check if the specified sheet name exists
-  for (var i = 0; i < sheets.length; i++) {
-    if (sheets[i].getName() === sheetName) {
-      Logger.log('Sheet "' + sheetName + '" already exists.');
-      return true;
-    }
+  if (!spreadsheet.getSheetByName(sheetName)) {
+    spreadsheet.insertSheet(sheetName);
   }
-  
-  // If the sheet doesn't exist, create it
-  spreadsheet.insertSheet(sheetName);
-  Logger.log('Sheet "' + sheetName + '" created.');
   return true;
 }
 

@@ -1,4 +1,4 @@
-var DomainUrl = "https://script.google.com/macros/s/AKfycbwX7BzbMp2H9TghzaoXQRsk8KCXsHVZjWfu3R1NYyYs414tnVpgGl7iCIRh6H0rtmla7w/exec";
+var DomainUrl = "https://script.google.com/macros/s/AKfycbz2-9TdB4csBt0KziPMDgBTAHnACDwvaxhjhF79_VCkkbsu-W53bSeWgva2AjfSCeCeLg/exec";
 var tableData;
 var dropDownValues;
 var modal;
@@ -8,14 +8,14 @@ let currentOperation = null;
 var userData;
 var isEditOpen = false;
 var popuptoOpen='';
-var previousdayData;
+var previousDayClosingData;
 
 document.addEventListener('DOMContentLoaded', function() {
     toggleBlur();
     setDefaultDate();
     AssigneValues();
     //fetchData(document.getElementById('selectedDate').value);
-    fetchPreviousDayData(document.getElementById('selectedDate').value);
+    fetchPreviousDayClosingData(document.getElementById('selectedDate').value);
     fetchDropDownData();
     fetchCreditData();
     toggleBlur();
@@ -43,7 +43,7 @@ function setDefaultDate() {
         console.log('Date value changed:', dateInput.value);
 
         //fetchData(document.getElementById('selectedDate').value);
-        fetchPreviousDayData(document.getElementById('selectedDate').value);
+        fetchPreviousDayClosingData(document.getElementById('selectedDate').value);
         
     });
 
@@ -118,7 +118,7 @@ async function fetchData(date) {
     .then(response => response.json())
     .then(data => {
         console.log('GET request data:', data);
-        renderTable(data);
+        renderTable(data,formattedDate);
         toggleBlur();
         // Handle the data from the GET request
     })
@@ -128,7 +128,7 @@ async function fetchData(date) {
 }
 
 // Fetch data from the server
-async function fetchPreviousDayData(date) {
+async function fetchPreviousDayClosingData(date) {
     toggleBlur();
     //google.script.run.withSuccessHandler(renderTable).getData();
     let selectedDate = new Date(date);
@@ -137,9 +137,9 @@ async function fetchPreviousDayData(date) {
 
     //let dateParts = date.split('-');
     // Rearrange the parts to the desired format (dd-mm-yyyy)
-    let formattedDate = formatDate(previousDate);
+    let formattedDate = formatDate(previousDate).replace(/-/g, '=');
 
-    const url = DomainUrl+"?action=getTable("+formattedDate+")"; // Replace with your actual web app URL
+    const url = DomainUrl+"?action=getOpeningBalance"; // Replace with your actual web app URL
 
     fetch(url)
     .then(response => response.json())
@@ -156,29 +156,40 @@ async function fetchPreviousDayData(date) {
             five: 0,
             two: 0,
             one: 0,
+            dp:0,
+            others:0,
         };
 
+        const multiplier= 1;
         data.forEach(transaction => {
-            const multiplier = transaction.transactionType === "Debit" ? -1 : 1;
+
+            if(formattedDate==transaction.date)
+            {
+                // const multiplier = transaction.transactionType === "Debit" ? -1 : 1;
+                total.fiveHundred += transaction.fiveHundred * multiplier;
+                total.twoHundred += transaction.twoHundred * multiplier;
+                total.oneHundred += transaction.oneHundred * multiplier;
+                total.fifty += transaction.fifty * multiplier;
+                total.twenty += transaction.twenty * multiplier;
+                total.ten += transaction.ten * multiplier;
+                total.five += transaction.five * multiplier;
+                total.two += transaction.two * multiplier;
+                total.one += transaction.one * multiplier;
+                // total.dp +=transaction.dp*multiplier;
+                // total.others += transaction.others*multiplier;
+            }
           
-            total.fiveHundred += transaction.fiveHundred * multiplier;
-            total.twoHundred += transaction.twoHundred * multiplier;
-            total.oneHundred += transaction.oneHundred * multiplier;
-            total.fifty += transaction.fifty * multiplier;
-            total.twenty += transaction.twenty * multiplier;
-            total.ten += transaction.ten * multiplier;
-            total.five += transaction.five * multiplier;
-            total.two += transaction.two * multiplier;
-            total.one += transaction.one * multiplier;
           });
           
           const dataRow = document.getElementById("previousdataRow");
           
-
+        
 
           dataRow.innerHTML="";
           dataRow.innerHTML += '<tr><th class="DenominationSizeID">Opening Balance</th></tr>'
           Object.keys(total).forEach(key => {
+            if(key.toString() != "others" && key.toString() != "dp")
+            {
               const cell = document.createElement("td");
               cell.textContent = total[key];
               if (total[key] >= 0) {
@@ -187,6 +198,7 @@ async function fetchPreviousDayData(date) {
                   cell.classList.add('currency-negative-open');
               }
               dataRow.appendChild(cell);
+            }
           });
           const netAvailable = (total.fiveHundred * 500) +
                                 (total.twoHundred * 200) +
@@ -208,7 +220,7 @@ async function fetchPreviousDayData(date) {
 
         cell.classList.add("NetAvailableSizeID");
         dataRow.appendChild(cell);
-        previousdayData= total;
+        previousDayClosingData= total;
         toggleBlur();
         fetchData(document.getElementById('selectedDate').value);                   
     })
@@ -245,7 +257,7 @@ async function fetchDropDownData() {
 
 
 // Render table rows from fetched data
-function renderTable(data) {
+function renderTable(data,loadingDataDate) {
     console.log(data);
     document.getElementById("wrapper").innerHTML = "";
     var tallyAmount = 0;
@@ -261,6 +273,8 @@ function renderTable(data) {
         five: 0,
         two: 0,
         one: 0,
+        dp:0,
+        others:0
       };
       
     const formattedData = data.map((row, index) => {
@@ -313,8 +327,8 @@ function renderTable(data) {
         total.five += transaction.five * multiplier;
         total.two += transaction.two * multiplier;
         total.one += transaction.one * multiplier;
-        //total.dp += transaction.dp * multiplier;
-        //total.others += transaction.others * multiplier;
+        total.dp += transaction.dp * multiplier;
+        total.others += transaction.others * multiplier;
       });
       
       const dataRow = document.getElementById("dataRow");
@@ -322,8 +336,10 @@ function renderTable(data) {
       dataRow.innerHTML="";
       dataRow.innerHTML += '<tr><th rowspan="2">Net Available</th></tr>'
       Object.keys(total).forEach(key => {
+        if(key.toString() != "others" && key.toString() != "dp")
+        {
           const cell = document.createElement("td");
-          cell.textContent = total[key]+previousdayData[key];
+          cell.textContent = total[key]+previousDayClosingData[key];
           cell.style.width='100px';
           if (total[key] >= 0) {
               //cell.classList.add('currency-positive');
@@ -331,6 +347,7 @@ function renderTable(data) {
               //cell.classList.add('currency-negative');
           }
           dataRow.appendChild(cell);
+        }
       });
 
       const netAvailableCell = document.createElement("td");
@@ -344,15 +361,15 @@ function renderTable(data) {
                             (total.two * 2) +
                             (total.one * 1);
 
-      const previousAvailable = (previousdayData.fiveHundred * 500) +
-                            (previousdayData.twoHundred * 200) +
-                            (previousdayData.oneHundred * 100) +
-                            (previousdayData.fifty * 50) +
-                            (previousdayData.twenty * 20) +
-                            (previousdayData.ten * 10) +
-                            (previousdayData.five * 5) +
-                            (previousdayData.two * 2) +
-                            (previousdayData.one * 1);
+      const previousAvailable = (previousDayClosingData.fiveHundred * 500) +
+                            (previousDayClosingData.twoHundred * 200) +
+                            (previousDayClosingData.oneHundred * 100) +
+                            (previousDayClosingData.fifty * 50) +
+                            (previousDayClosingData.twenty * 20) +
+                            (previousDayClosingData.ten * 10) +
+                            (previousDayClosingData.five * 5) +
+                            (previousDayClosingData.two * 2) +
+                            (previousDayClosingData.one * 1);
 
       netAvailableCell.textContent = netAvailable+previousAvailable;
 
@@ -371,7 +388,7 @@ function renderTable(data) {
     } else {
         gridInstance = new gridjs.Grid({
             pagination: {
-                limit: 15
+                limit: 50
             },
             sort: true,
             columns: [
@@ -405,9 +422,39 @@ function renderTable(data) {
     }
     
     console.log(tallyAmount);
+
+    var NewClosingBalance = 
+    {
+        date:loadingDataDate.replace(/-/g, '='),
+        fiveHundred: total.fiveHundred+previousDayClosingData.fiveHundred,
+        twoHundred: total.twoHundred+previousDayClosingData.twoHundred,
+        oneHundred: total.oneHundred+previousDayClosingData.oneHundred,
+        fifty: total.fifty+previousDayClosingData.fifty,
+        twenty:total.twenty+previousDayClosingData.twenty,
+        ten: total.ten+previousDayClosingData.ten,
+        five: total.five+previousDayClosingData.five,
+        two: total.two+previousDayClosingData.two,
+        one: total.one+previousDayClosingData.one,
+        total:netAvailable+previousAvailable
+    }
+
+    fetch(DomainUrl + "?action=closingBalance", {
+        method: 'POST',
+        redirect: 'follow',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    body: JSON.stringify(NewClosingBalance)
+    })
+    .then(data => {
+        console.log("Posted closing balance :"+data);
+    })
+    .catch(error => {
+        console.error('Error with POST request:', error);
+    });
     //document.getElementById('tallyAmount').innerHTML = tallyAmount;
 }
-
 
 function formatDateToYYYYMMDD(date) {
     const year = date.getFullYear();
